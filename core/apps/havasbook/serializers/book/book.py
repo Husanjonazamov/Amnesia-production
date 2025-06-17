@@ -97,6 +97,7 @@ class ListBookSerializer(BaseBookSerializer):
 
 class RetrieveBookSerializer(BaseBookSerializer):
     cart_id = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta(BaseBookSerializer.Meta):
         fields = BaseBookSerializer.Meta.fields + [
@@ -113,6 +114,13 @@ class RetrieveBookSerializer(BaseBookSerializer):
             if cart_item:
                 return cart.id
         return None
+    
+
+    def get_images(self, obj):
+        from core.apps.havasbook.serializers.book import ListBookimageSerializer
+        request = self.context.get('request')
+        return ListBookimageSerializer(obj.images.all(), many=True, context={'request': request}).data
+
 
 
 class CreateBookSerializer(BaseBookSerializer):
