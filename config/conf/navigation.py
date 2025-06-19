@@ -78,6 +78,45 @@ PAGES = [
         ]
 
     },
+    {
+        "title": _("Kategorylar"),
+        "separator": True,
+        "items": [
+            {
+                "title": _("Kategoryalar"),
+                "icon": "view_list",  # Asosiy kategoriya uchun
+                "link": reverse_lazy("admin:havasbook_categorymodel_changelist"),
+                "permission": lambda request: user_has_group_or_permission(
+                    request.user, "view_user"
+                ),
+            },
+            {
+                "title": _("SubCateogry"),
+                "icon": "subdirectory_arrow_right",  # Subkategoriya uchun
+                "link": reverse_lazy("admin:havasbook_subcategorymodel_changelist"),
+                "permission": lambda request: user_has_group_or_permission(
+                    request.user, "view_user"
+                ),
+            },
+            {
+                "title": _("Gender"),
+                "icon": "wc",  # Gender uchun
+                "link": reverse_lazy("admin:havasbook_gendermodel_changelist"),
+                "permission": lambda request: user_has_group_or_permission(
+                    request.user, "view_user"
+                ),
+            },
+            {
+                "title": _("Brand"),
+                "icon": "storefront",  # Brendlar uchun
+                "link": reverse_lazy("admin:havasbook_brandmodel_changelist"),
+                "permission": lambda request: user_has_group_or_permission(
+                    request.user, "view_user"
+                ),
+            },
+        ]
+    },
+
     # {
     #     "title": _("Savatlar bo'limi"),
     #     "separator": True,  # Top border

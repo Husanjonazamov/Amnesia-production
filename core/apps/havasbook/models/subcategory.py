@@ -4,11 +4,25 @@ from django_core.models import AbstractBaseModel
 
 
 class SubcategoryModel(AbstractBaseModel):
-
     name = models.CharField(verbose_name=_("name"), max_length=255)
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='children'
+    )
+    category = models.ForeignKey(
+        "havasbook.CategoryModel",
+        on_delete=models.CASCADE,
+        verbose_name=_("Cateogry"),
+        blank=True, null=True
+    )
+    
+
 
     def __str__(self):
-        return self.pk
+        return self.name
 
     @classmethod
     def _create_fake(self):

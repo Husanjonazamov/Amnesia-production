@@ -21,88 +21,33 @@ class CurrencyChoices(models.TextChoices):
     RUB = 'RUB', _('₽')
     EUR = 'EUR', _('€')
     
-class GenderChoices(models.TextChoices):
-    MALE = "male", "Erkaklar uchun"
-    FEMALE = "female", "Ayollar uchun"
-    UNISEX = "unisex", "Ikkalasiga ham"
-
 
 
 class BookModel(AbstractBaseModel):
     name = models.CharField(_("name"), max_length=255)
     description = models.TextField(_("Mahsulot tavsifi"), null=True, blank=True)
-    gender = models.CharField(
-        max_length=10,
-        choices=GenderChoices.choices,
-        default=GenderChoices.UNISEX,
-    )
-    category = models.ForeignKey(
-        "havasbook.CategoryModel",
-        verbose_name=_("Kategoriylar"),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='books'
-    )
-    color = models.ManyToManyField(
-        'havasbook.ColorModel',
-        verbose_name=_("Mahsulot Rangi"),
-        blank=True
-    )
-    size = models.ManyToManyField(
-        'havasbook.SizeModel',
-        verbose_name=_("O'lchami"),
-        blank=True
-    )
+    gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Gender"))
+    brand = models.ForeignKey("havasbook.BrandModel", on_delete=models.CASCADE, verbose_name=_("Brand"),  blank=True, null=True)
+    category = models.ForeignKey("havasbook.CategoryModel", verbose_name=_("Kategoriylar"), on_delete=models.SET_NULL, null=True, blank=True, related_name='books')
+    subcategory = models.ForeignKey("havasbook.SubCategoryModel", on_delete=models.CASCADE, verbose_name=_("SubCategory"), blank=True, null=True)
+    color = models.ManyToManyField("havasbook.ColorModel", verbose_name=_("Mahsulot Rangi"), blank=True)
+    size = models.ManyToManyField("havasbook.SizeModel", verbose_name=_("O'lchami"), blank=True)
     image = models.ImageField(_("Rasm"), upload_to="book-image/", null=True, blank=True)
-    
-    base_currency = models.CharField(
-        _("Asosiy valyuta"),
-        max_length=3,
-        choices=CurrencyChoices.choices,
-        default=CurrencyChoices.USD
-    )
-    
-    original_price = models.DecimalField(
-        _("Asl narxi"), max_digits=10, decimal_places=2, null=True, blank=True
-    )
-    price = models.DecimalField(
-        _("Chegirmadagi narxi"), max_digits=10, decimal_places=2, null=True, blank=True
-    )
+
+    base_currency = models.CharField(_("Asosiy valyuta"), max_length=3, choices=CurrencyChoices.choices, default=CurrencyChoices.USD)
+    original_price = models.DecimalField(_("Asl narxi"), max_digits=10, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(_("Chegirmadagi narxi"), max_digits=10, decimal_places=2, null=True, blank=True)
     is_discount = models.BooleanField(_("Chegirma bormi ?"), default=False)
-    discount_percent = models.DecimalField(
-        _("chegirma foizi"), max_digits=10, decimal_places=2, null=True, blank=True
-    )
-    
-    book_id = models.CharField(
-        verbose_name=_("Kitob id"),
-        max_length=155,
-        blank=True,
-        null=True
-    )
+    discount_percent = models.DecimalField(_("chegirma foizi"), max_digits=10, decimal_places=2, null=True, blank=True)
 
-    quantity = models.PositiveIntegerField(
-        _("Kitob soni"), default=0, null=True, blank=True
-    )
-    
-    sold_count = models.PositiveIntegerField(  
-        _("Sotilganlar soni"),
-        default=0
-    )
+    book_id = models.CharField(_("Kitob id"), max_length=155, blank=True, null=True)
+    quantity = models.PositiveIntegerField(_("Kitob soni"), default=0, null=True, blank=True)
+    sold_count = models.PositiveIntegerField(_("Sotilganlar soni"), default=0)
+    view_count = models.PositiveIntegerField(_("Ko'rishlar soni"), default=0)
+    popular = models.BooleanField(_("Mashhurmi ?"), default=False)
+    is_preorder = models.BooleanField(_("Oldindan buyurtma bormi?"), default=False)
 
-    view_count = models.PositiveIntegerField(
-        _("Ko'rishlar soni"),
-        default=0
-    )
-    popular = models.BooleanField(
-        _("Mashhurmi ?"),
-        default=False
-    )
 
-    is_preorder = models.BooleanField(  
-        _("Oldindan buyurtma bormi?"),
-        default=False
-    )
 
     def __str__(self):
         return self.name
