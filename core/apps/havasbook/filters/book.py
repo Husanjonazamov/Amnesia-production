@@ -12,11 +12,8 @@ class BookFilter(django_filters.FilterSet):
     is_discount = django_filters.BooleanFilter(field_name='is_discount', label='Discounted Books')
     is_preorder = django_filters.BooleanFilter(field_name='is_preorder', label='Pre-order Books')
     
-    gender = django_filters.CharFilter(
-            field_name='gender',
-            lookup_expr='exact',
-            label='gender'
-        )
+    gender = django_filters.CharFilter(field_name="gender__gender",  lookup_expr="iexact")
+    brand = django_filters.NumberFilter(field_name="brand_id")
 
     search = django_filters.CharFilter(method='filter_by_search', label='Search Books')
     popular = django_filters.BooleanFilter(method='filter_by_popular', label='Popular Books')
@@ -64,5 +61,6 @@ class BookFilter(django_filters.FilterSet):
             'is_preorder',
             'popular',
             'search',
-            'gender',  # filterga qo'shildi
+            'gender', 
+            "brand"
         ]

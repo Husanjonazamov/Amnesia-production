@@ -12,6 +12,9 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
     size = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     original_price = serializers.SerializerMethodField()
+    gender = serializers.SerializerMethodField()
+    brand = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = BookModel
@@ -37,8 +40,18 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
             'popular',
             'is_preorder',
             'gender',
+            "brand",
             'created_at',
         ]
+        
+    def get_gender(self, obj):
+        from core.apps.havasbook.serializers.gender import BaseGenderSerializer
+        return BaseGenderSerializer(obj.gender).data
+    
+    def get_brand(self, obj):
+        from core.apps.havasbook.serializers.brand import BaseBrandSerializer
+        return BaseBrandSerializer(obj.brand).data
+    
 
     def get_color(self, obj):
         from core.apps.havasbook.serializers.variants import BaseColorSerializer

@@ -9,6 +9,7 @@ class BrandModel(AbstractBaseModel):
         verbose_name=_("Brand"), 
         max_length=255
     )
+    gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True)
     
 
     def __str__(self):

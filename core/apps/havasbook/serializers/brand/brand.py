@@ -9,6 +9,8 @@ class BaseBrandSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "gender",
+            
         ]
 
 
@@ -25,4 +27,5 @@ class CreateBrandSerializer(BaseBrandSerializer):
         fields = [
             "id",
             "name",
+            "gender",
         ]

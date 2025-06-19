@@ -8,6 +8,8 @@ from django_core.models import AbstractBaseModel
 class GenderChoices(models.TextChoices):
     MALE = "male", "Erkaklar uchun"
     FEMALE = "female", "Ayollar uchun"
+    UNISEX = "unisex", "Hammasi uchun"
+
 
 
 class GenderModel(AbstractBaseModel):
@@ -17,7 +19,6 @@ class GenderModel(AbstractBaseModel):
         choices=GenderChoices.choices,
         default=GenderChoices.MALE
     )
-    slug = models.SlugField(verbose_name=_("Slug"), blank=True, null=True)
 
     def __str__(self):
         return self.gender
