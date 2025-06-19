@@ -12,12 +12,7 @@ class CategoryModel(AbstractBaseModel):
         blank=True, null=True,
         verbose_name=_("Gender")
     )
-    brand = models.ForeignKey(
-        "havasbook.BrandModel",
-        on_delete=models.CASCADE,
-        blank=True, null=True,
-        verbose_name=_("Brand")
-    )
+   
     image = models.ImageField(_("Rasm"), upload_to="category-image/")
     
 

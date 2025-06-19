@@ -53,7 +53,6 @@ class BookModel(AbstractBaseModel):
         return self.name
 
 
-
     def save(self, *args, **kwargs):
         if self.discount_percent is not None: 
             self.price = self.original_price - (self.original_price * self.discount_percent / 100)

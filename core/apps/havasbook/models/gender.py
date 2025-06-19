@@ -17,6 +17,7 @@ class GenderModel(AbstractBaseModel):
         choices=GenderChoices.choices,
         default=GenderChoices.MALE
     )
+    slug = models.SlugField(verbose_name=_("Slug"), blank=True, null=True)
 
     def __str__(self):
         return self.gender
