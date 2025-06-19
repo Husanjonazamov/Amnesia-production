@@ -10,8 +10,8 @@ from config.env import env
 class BaseBookSerializer(AbstractTranslatedSerializer):
     color = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
-    original_price = serializers.SerializerMethodField()
+    # price = serializers.SerializerMethodField()
+    # original_price = serializers.SerializerMethodField()
     gender = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
     
@@ -62,34 +62,34 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
         from core.apps.havasbook.serializers import ListSizeSerializer
         return ListSizeSerializer(obj.size, many=True).data
 
-    def convert_currency(self, amount: Decimal, to_currency: str) -> Decimal:
-        if to_currency == "USD":
-            return amount  # USD dan boshqa valyutaga aylantirish kerak emas
+    # def convert_currency(self, amount: Decimal, to_currency: str) -> Decimal:
+    #     if to_currency == "USD":
+    #         return amount  # USD dan boshqa valyutaga aylantirish kerak emas
 
-        url = env.str("EXCHANGE_URL")
-        try:
-            response = requests.get(url, timeout=3)
-            data = response.json()
-            rates = data.get("conversion_rates", {})
-            rate = Decimal(rates.get(to_currency, 1))
-            return round(amount * rate, 2)
-        except Exception as e:
-            print("Currency conversion failed:", e)
-            return amount
+    #     url = env.str("EXCHANGE_URL")
+    #     try:
+    #         response = requests.get(url, timeout=3)
+    #         data = response.json()
+    #         rates = data.get("conversion_rates", {})
+    #         rate = Decimal(rates.get(to_currency, 1))
+    #         return round(amount * rate, 2)
+    #     except Exception as e:
+    #         print("Currency conversion failed:", e)
+    #         return amount
 
-    def get_price(self, obj):
-        request = self.context.get("request")
-        currency = request.query_params.get("currency", "USD").upper()
+    # def get_price(self, obj):
+    #     request = self.context.get("request")
+    #     currency = request.query_params.get("currency", "USD").upper()
 
-        amount = obj.price
-        return self.convert_currency(Decimal(amount), currency)
+    #     amount = obj.price
+    #     return self.convert_currency(Decimal(amount), currency)
 
-    def get_original_price(self, obj):
-        request = self.context.get("request")
-        currency = request.query_params.get("currency", "USD").upper()
+    # def get_original_price(self, obj):
+    #     request = self.context.get("request")
+    #     currency = request.query_params.get("currency", "USD").upper()
 
-        amount = obj.original_price
-        return self.convert_currency(Decimal(amount), currency)
+    #     amount = obj.original_price
+    #     return self.convert_currency(Decimal(amount), currency)
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)

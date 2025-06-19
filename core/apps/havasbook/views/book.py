@@ -21,7 +21,7 @@ from core.apps.havasbook.filters.book import BookFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from core.apps.havasbook.serializers import BaseBrandSerializer, BaseCategorySerializer
+from core.apps.havasbook.serializers import BaseBrandSerializer, BaseCategorySerializer, BaseSubcategorySerializer
 from core.apps.havasbook.models import BrandModel, CategoryModel, SubcategoryModel
 
 
@@ -108,35 +108,52 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
     
     
     
-    @action(detail=False, methods=["get"], url_path="category")
+
+    @action(detail=False, methods=["get"], url_path="category", permission_classes=[AllowAny])
     def filter_by_category(self, request):
-        permission_classes = [AllowAny]
         gender = request.query_params.get("gender")
         category_id = request.query_params.get("category")
-        subcategory = request.query_params.get("subcategory")
-        
-        if category_id:
+        subcategory_id = request.query_params.get("subcategory")
+
+        if subcategory_id:
             products = BookModel.objects.filter(
-                category_id=category_id
-            ).filter (
-                    Q(gender__gender=gender) | Q(gender__gender="unisex")
+                subcategory_id=subcategory_id,
+                subcategory__category__gender__gender__in=[gender, "unisex"]
             )
-            
             page = self.paginate_queryset(products)
             serializer = ListBookSerializer(page, many=True, context={"context": request})
             return self.get_paginated_response({
                 "status": True,
                 "results": serializer.data
             })
-            
-        category = CategoryModel.objects.filter(
-            Q(gender__gender=gender) | Q(gender__gender="unisex")
-        ).distinct()
-        
-        page = self.paginate_queryset(category)
-        serializer = BaseCategorySerializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
-        
+
+        elif category_id:
+            subcategories = SubcategoryModel.objects.filter(
+                category_id=category_id,
+                category__gender__gender__in=[gender, "unisex"]
+            )
+            page = self.paginate_queryset(subcategories)
+            serializer = BaseSubcategorySerializer(page, many=True, context={"context": request})
+            return self.get_paginated_response({
+                "status": True,
+                "results": serializer.data
+            })
+        elif gender:
+            categories = CategoryModel.objects.filter(
+                gender__gender__in=[gender, "unisex"]
+            ).distinct()
+            page = self.paginate_queryset(categories)
+            serializer = BaseCategorySerializer(page, many=True)
+            return self.get_paginated_response({
+                "status": True,
+                "results": serializer.data
+            })
+
+        return Response({
+            "status": False,
+            "message": "Kamida gender yoki category yoki subcategory ID yuborilishi kerak."
+        }, status=400)
+
         
         
     
