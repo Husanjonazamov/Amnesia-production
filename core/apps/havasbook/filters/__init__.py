@@ -2,8 +2,10 @@ from .banner import *  # noqa
 from .book import *  # noqa
 from .brand import *  # noqa
 from .delivery import *  # noqa
+from .gender import *  # noqa
 from .order import *  # noqa
 from .organization import *  # noqa
 from .preorder import *  # noqa
 from .products import *  # noqa
+from .subcategory import *  # noqa
 from .variants import *  # noqa
