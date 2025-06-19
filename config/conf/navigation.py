@@ -67,14 +67,6 @@ PAGES = [
                     request.user, "view_group"
                 ),
             },
-            {
-                "title": _("Kategoryalar"),
-                "icon": "category",  # Kategoryalar uchun mos icon
-                "link": reverse_lazy("admin:havasbook_categorymodel_changelist"),
-                "permission": lambda request: user_has_group_or_permission(
-                    request.user, "view_user"
-                ),
-            },
         ]
 
     },
