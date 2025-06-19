@@ -21,7 +21,8 @@ from core.apps.havasbook.filters.book import BookFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-
+from core.apps.havasbook.serializers.brand import BaseBrandSerializer
+from core.apps.havasbook.models.brand import BrandModel
 
 
 
@@ -100,37 +101,13 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
                 "results": serializer.data
             })
 
-        brands = BookModel.objects.filter(
-            Q(gender__gender=gender_slug) | Q(gender__gender="unisex"),
-            brand__isnull=False
-        ).values("brand__id", "brand__name").distinct()
+        brands = BrandModel.objects.filter(
+            Q(gender__gender=gender_slug) | Q(gender__gender='unisex')
+        ).distinct()
 
-        brand_list = [{"id": b["brand__id"], "name": b["brand__name"]} for b in brands]
-
-        page_size = 10
-        page = int(request.query_params.get("page", 1))
-        total_items = len(brand_list)
-        total_pages = (total_items + page_size - 1) 
-        start = (page - 1) * page_size
-        end = start + page_size
-        results = brand_list[start:end]
-
-        data = {
-            "status": True,
-            "data": {
-                "links": {
-                    "previous": None if page == 1 else f"?page={page - 1}",
-                    "next": None if page >= total_pages else f"?page={page + 1}"
-                },
-                "total_items": total_items,
-                "total_pages": total_pages,
-                "page_size": page_size,
-                "current_page": page,
-                "results": results
-            }
-        }
-        return Response(data)
-
+        page = self.paginate_queryset(brands)
+        serializer = BaseBrandSerializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
     
     
     
