@@ -4,10 +4,10 @@ from core.apps.havasbook.models import GenderModel
 
 
 class GenderFilter(filters.FilterSet):
-    # name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    gender = filters.CharFilter(field_name="gender", lookup_expr="icontains")
 
     class Meta:
         model = GenderModel
         fields = [
-            "name",
+            "gender",
         ]

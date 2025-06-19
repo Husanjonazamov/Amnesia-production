@@ -8,7 +8,7 @@ class BaseGenderSerializer(serializers.ModelSerializer):
         model = GenderModel
         fields = [
             "id",
-            "name",
+            "gender",
         ]
 
 
@@ -24,5 +24,5 @@ class CreateGenderSerializer(BaseGenderSerializer):
     class Meta(BaseGenderSerializer.Meta):
         fields = [
             "id",
-            "name",
+            "gender",
         ]

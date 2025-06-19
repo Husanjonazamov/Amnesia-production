@@ -3,12 +3,23 @@ from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
 
 
-class GenderModel(AbstractBaseModel):
 
-    name = models.CharField(verbose_name=_("name"), max_length=255)
+    
+class GenderChoices(models.TextChoices):
+    MALE = "male", "Erkaklar uchun"
+    FEMALE = "female", "Ayollar uchun"
+
+
+class GenderModel(AbstractBaseModel):
+    gender = models.CharField(
+        verbose_name=_("Gender"),
+        max_length=255,
+        choices=GenderChoices.choices,
+        default=GenderChoices.MALE
+    )
 
     def __str__(self):
-        return self.pk
+        return self.gender
 
     @classmethod
     def _create_fake(self):
