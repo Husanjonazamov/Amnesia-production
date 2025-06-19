@@ -84,6 +84,22 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         gender_slug = request.query_params.get("gender")
         brand_id = request.query_params.get("brand")
 
+        if not gender_slug:
+            return Response({"status": False, "error": "gender is required"}, status=400)
+
+        if brand_id: 
+            products = BookModel.objects.filter(
+                brand_id=brand_id
+            ).filter(
+                Q(gender__gender=gender_slug) | Q(gender__gender="unisex")
+            )
+
+            page = self.paginate_queryset(products)
+            serializer = ListBookSerializer(page, many=True, context={"request": request})
+            return self.get_paginated_response({
+                "status": True,
+                "results": serializer.data
+            })
 
         brands = BrandModel.objects.filter(
             Q(gender__gender=gender_slug) | Q(gender__gender='unisex')
@@ -99,7 +115,6 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         gender = request.query_params.get("gender")
         category = request.query_params.get("category")
         subcategory = request.query_params.get("subcategory")
-        
         
         
     
