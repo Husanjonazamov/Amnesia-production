@@ -10,7 +10,7 @@ class BrandModel(AbstractBaseModel):
         max_length=255
     )
     gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True)
-    
+    image = models.ImageField(upload_to="brands/", blank=True, null=True)
 
     def __str__(self):
         return self.name

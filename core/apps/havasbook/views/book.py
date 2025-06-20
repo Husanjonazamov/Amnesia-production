@@ -103,7 +103,7 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         ).distinct()
 
         page = self.paginate_queryset(brands)
-        serializer = BaseBrandSerializer(page, many=True)
+        serializer = BaseBrandSerializer(page, many=True, context=({"request": request}))
         return self.get_paginated_response(serializer.data)
     
     
