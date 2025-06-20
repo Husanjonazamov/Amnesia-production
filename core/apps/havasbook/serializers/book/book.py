@@ -14,7 +14,7 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
     # original_price = serializers.SerializerMethodField()
     gender = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
-    
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = BookModel
@@ -61,6 +61,11 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
     def get_size(self, obj):
         from core.apps.havasbook.serializers import ListSizeSerializer
         return ListSizeSerializer(obj.size, many=True).data
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        if request and obj.image:
+            return request.build_absolute_uri(obj.image.url)
 
     # def convert_currency(self, amount: Decimal, to_currency: str) -> Decimal:
     #     if to_currency == "USD":
