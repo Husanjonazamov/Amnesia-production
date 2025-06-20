@@ -143,11 +143,12 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
                 gender__gender__in=[gender, "unisex"]
             ).distinct()
             page = self.paginate_queryset(categories)
-            serializer = BaseCategorySerializer(page, many=True)
+            serializer = BaseCategorySerializer(page, many=True, context={"request": request})
             return self.get_paginated_response({
                 "status": True,
                 "results": serializer.data
             })
+
 
         return Response({
             "status": False,
