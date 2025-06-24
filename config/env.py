@@ -26,6 +26,7 @@ env = environ.Env(
     WEB_APP_URL=(str, "TOKEN"),
     CHANNEL_ID=(str, "TOKEN"),
     EXCHANGE_URL=(str, "TOKEN"),
+    CBU_EXCHANGE_URL=(str, "TOKEN"),
     PAYME_ID=(str, "TOKEN"),
     PAYME_KEY=(str, "TOKEN"),
     OTP_MODULE="core.services.otp",
