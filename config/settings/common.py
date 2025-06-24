@@ -150,8 +150,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATIC_ROOT = os.path.join(BASE_DIR, "resources/staticfiles")
 VITE_APP_DIR = os.path.join(BASE_DIR, "resources/static/vite")
 
-
-CORS_ALLOW_HEADERS = (
+CORS_ALLOW_HEADERS = [
     "accept",
     "authorization",
     "content-type",
@@ -159,7 +158,7 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
     "currency",
-)
+]
 
 
 
