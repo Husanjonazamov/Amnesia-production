@@ -1,22 +1,21 @@
+# core/apps/havasbook/serializers/book/currency.py
+
 from decimal import Decimal
 import requests
 from config.env import env
 from core.apps.havasbook.models.book import CurrencyChoices
-from rest_framework import serializers
 
 EXCHANGE_URL = env("EXCHANGE_URL")
 
 
-
-def convert_currency(amount: Decimal, to_currency: str):
+def convert_currency(amount: Decimal, to_currency: str) -> Decimal:
     if to_currency == "USD":
         return round(amount, 2)
 
     try:
-        url = EXCHANGE_URL
-        response = requests.get(url, timeout=3)
+        response = requests.get(EXCHANGE_URL, timeout=3)
         data = response.json()
-        
+
         if data.get("result") != "success":
             return round(amount, 2)
 
@@ -25,24 +24,19 @@ def convert_currency(amount: Decimal, to_currency: str):
             return round(amount, 2)
 
         return round(amount * Decimal(str(rate)), 2)
-    
-    except Exception as e:
-        print("Currycy conversion failed:", str(e))
-    
-    
-    
-    
-class BaseCurrencySerializers(serializers.ModelSerializer):
+
+    except Exception:
+        return round(amount, 2)
+
+
+class BaseCurrencyPriceMixin:
     def get_currency_price(self, amount):
-        request =  self.context.get("request")
-        currency = "USD"
-        
-        if request:
-            currency = request.headers.get("currency", "USD").upper()
-            
+        request = self.context.get("request")
+        currency = request.headers.get("currency", "USD").upper() if request else "USD"
+
         try:
             amount = Decimal(str(amount))
-        except print(0):
+        except:
             amount = Decimal("0.0")
-            
+
         return convert_currency(amount, currency)

@@ -4,13 +4,15 @@ from ...models import CartModel, CartitemModel
 from decimal import Decimal
 from django.db.models import Sum
 from django_core.serializers import AbstractTranslatedSerializer
+from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 
 
 
 
 
-class BaseCartSerializer(serializers.ModelSerializer):
+class BaseCartSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
     class Meta:
         model = CartModel
         fields = [
@@ -23,6 +25,10 @@ class BaseCartSerializer(serializers.ModelSerializer):
         from core.apps.accounts.serializers import UserSerializer
         return UserSerializer(obj.user).data
 
+    def get_total_price(self, obj):
+        return self.get_currency_price(obj.total_price)
+
+    
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -36,7 +42,9 @@ class BaseCartSerializer(serializers.ModelSerializer):
         return rep
 
 
-class ListCartSerializer(serializers.ModelSerializer):
+
+
+class ListCartSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     total_price = serializers.SerializerMethodField()
     total_quantity = serializers.SerializerMethodField()
@@ -51,27 +59,27 @@ class ListCartSerializer(serializers.ModelSerializer):
             'products'
         ]
 
-    def get_products(self, obj) -> list:
+    def get_products(self, obj):
         from core.apps.havasbook.serializers.cart import ListCartitemSerializer
-        items = obj.cart_items.all()  
-        request = self.context.get('request')
-        return ListCartitemSerializer(items, many=True, context={'request': request}).data
+        items = obj.cart_items.all()
+        return ListCartitemSerializer(items, many=True, context={'request': self.context.get('request')}).data
 
     def get_total_quantity(self, obj):
         return sum([item.quantity for item in obj.cart_items.all()])
 
     def get_total_price(self, obj):
-        return str(sum([item.book.price * item.quantity for item in obj.cart_items.all()]))
+        total = sum([item.book.price * item.quantity for item in obj.cart_items.all()])
+        return self.get_currency_price(total)
 
     def get_total_discounted_price(self, obj):
-        from core.apps.havasbook.serializers.cart import ListCartitemSerializer
-
         total = Decimal('0.00')
-        serialized_items = ListCartitemSerializer(obj.cart_items.all(), many=True, context=self.context).data
-        for item in serialized_items:
-            discounted = Decimal(item.get("discounted_total_price", 0))
-            total += discounted
-        return total.quantize(Decimal("0.01"))
+        for item in obj.cart_items.all():
+            discount = item.book.discount_percent or 0
+            discounted_price = Decimal(item.book.price) * (1 - Decimal(discount) / 100)
+            total += discounted_price * item.quantity
+        return self.get_currency_price(total)
+
+
 
 
 

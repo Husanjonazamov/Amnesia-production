@@ -3,9 +3,10 @@ from rest_framework import serializers
 from ...models import CartitemModel, CartModel
 from core.apps.havasbook.models.book import BookModel
 from core.apps.havasbook.models.variants import ColorModel, SizeModel
+from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 
 
-class BaseCartitemSerializer(serializers.ModelSerializer):
+class BaseCartitemSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     book = serializers.SerializerMethodField() 
     cart = serializers.SerializerMethodField()
     color = serializers.SerializerMethodField()
@@ -26,11 +27,11 @@ class BaseCartitemSerializer(serializers.ModelSerializer):
 
     def get_cart(self, obj):
         from core.apps.havasbook.serializers.cart.cart import ListCartSerializer
-        return ListCartSerializer(obj.cart).data  # Cartni get qilish
+        return ListCartSerializer(obj.cart, context=self.context).data  
 
     def get_book(self, obj):
         from core.apps.havasbook.serializers.book import ListBookSerializer
-        return ListBookSerializer(obj.book).data  # Bookni get qilish
+        return ListBookSerializer(obj.book, context=self.context).data  
 
 
     def get_color(self, obj):
@@ -51,17 +52,18 @@ class BaseCartitemSerializer(serializers.ModelSerializer):
 from decimal import Decimal
 from rest_framework import serializers
 
-class ListCartitemSerializer(serializers.ModelSerializer):
+
+class ListCartitemSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="book.id")
     name = serializers.CharField(source='book.name')
     color = serializers.CharField(source='color.name', default=None)
     size = serializers.CharField(source='size.name', default=None)
     image = serializers.SerializerMethodField()
-    price = serializers.DecimalField(source='book.price', max_digits=10, decimal_places=2)
+    price = serializers.SerializerMethodField()
     discounted_total_price = serializers.SerializerMethodField()
     discount_percent = serializers.SerializerMethodField()
     available_quantity = serializers.SerializerMethodField()
-    total_price = serializers.SerializerMethodField()  
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = CartitemModel
@@ -86,16 +88,17 @@ class ListCartitemSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.book.image.url)
         return None
 
+    def get_price(self, obj):
+        return self.get_currency_price(obj.book.price)
+
     def get_total_price(self, obj):
-        return Decimal(obj.book.price) * obj.quantity
+        return self.get_currency_price(obj.book.price * obj.quantity)
 
     def get_discounted_total_price(self, obj):
         price = Decimal(obj.book.price)
-        quantity = obj.quantity
         discount = getattr(obj.book, 'discount_percent', 0) or 0
-
-        discounted_price = price * (Decimal(1) - Decimal(discount) / 100)
-        return discounted_price * quantity
+        discounted = price * (Decimal(1) - Decimal(discount) / 100)
+        return self.get_currency_price(discounted * obj.quantity)
 
     def get_discount_percent(self, obj):
         return getattr(obj.book, 'discount_percent', 0)

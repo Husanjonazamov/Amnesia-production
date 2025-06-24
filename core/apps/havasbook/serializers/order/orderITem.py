@@ -1,11 +1,14 @@
 from rest_framework import serializers
-
+from decimal import Decimal
 from ...models import OrderitemModel
+from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 
 
-class BaseOrderitemSerializer(serializers.ModelSerializer):
+class BaseOrderitemSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     order = serializers.SerializerMethodField()
     book = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderitemModel
         fields = [
@@ -18,20 +21,24 @@ class BaseOrderitemSerializer(serializers.ModelSerializer):
 
     def get_order(self, obj): 
         from core.apps.havasbook.serializers.order import ListOrderSerializer
-        return ListOrderSerializer(obj.order).data
-    
+        return ListOrderSerializer(obj.order, context=self.context).data
+
     def get_book(self, obj):
         from core.apps.havasbook.serializers.book import ListBookSerializer
-        return ListBookSerializer(obj.book).data
-    
+        return ListBookSerializer(obj.book, context=self.context).data
+
+    def get_price(self, obj):
+        return self.get_currency_price(obj.price)
 
 
 class ListOrderitemSerializer(BaseOrderitemSerializer):
-    class Meta(BaseOrderitemSerializer.Meta): ...
+    class Meta(BaseOrderitemSerializer.Meta):
+        pass
 
 
 class RetrieveOrderitemSerializer(BaseOrderitemSerializer):
-    class Meta(BaseOrderitemSerializer.Meta): ...
+    class Meta(BaseOrderitemSerializer.Meta):
+        pass
 
 
 class CreateOrderitemSerializer(serializers.ModelSerializer):
@@ -43,8 +50,10 @@ class CreateOrderitemSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrderItemSerializers(serializers.ModelSerializer):
+class OrderItemSerializers(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     book = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderitemModel
         fields = [
@@ -53,15 +62,19 @@ class OrderItemSerializers(serializers.ModelSerializer):
             'quantity',
             'price'
         ]
-
 
     def get_book(self, obj):
         from core.apps.havasbook.serializers.book.book import ListBookSerializer
-        return ListBookSerializer(obj.book).data
-    
-    
-class ListOrderItemSerializers(serializers.ModelSerializer):
+        return ListBookSerializer(obj.book, context=self.context).data
+
+    def get_price(self, obj):
+        return self.get_currency_price(obj.price)
+
+
+class ListOrderItemSerializers(BaseCurrencyPriceMixin, serializers.ModelSerializer):
     book = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderitemModel
         fields = [
@@ -71,17 +84,20 @@ class ListOrderItemSerializers(serializers.ModelSerializer):
             'price'
         ]
 
+    def get_price(self, obj):
+        return self.get_currency_price(obj.price)
 
     def get_book(self, obj):
-        request = self.context.get('request')  
+        request = self.context.get('request')
         book = obj.book
         image_url = book.image.url if book.image else None
+
         if image_url and request:
-            image_url = request.build_absolute_uri(image_url)  
+            image_url = request.build_absolute_uri(image_url)
 
         return {
             "name": book.name,
-            "price": book.price,
+            "price": self.get_currency_price(book.price),
             "image": image_url,
             "color": book.color.first().title if book.color.exists() else None,
             "size": book.size.first().title if book.size.exists() else None

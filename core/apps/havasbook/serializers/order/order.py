@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from decimal import Decimal
 
-from ...models import OrderModel, OrderitemModel, OrderStatus
+from ...models import OrderModel, OrderStatus, OrderitemModel
 from core.apps.havasbook.serializers.order.orderITem import CreateOrderitemSerializer
 from core.apps.havasbook.models.book import BookModel
 from core.apps.havasbook.serializers.location import CreateLocationSerializer
@@ -11,10 +12,12 @@ from core.apps.havasbook.models.delivery import DeliveryModel
 from core.apps.havasbook.serializers.order.orderITem import OrderItemSerializers, ListOrderItemSerializers
 from core.apps.havasbook.models.cart import CartitemModel, CartModel
 from core.apps.bot.management.commands.handler.generate import send_payment_link
+from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 
 
+class BaseOrderSerializer(BaseCurrencyPriceMixin, serializers.ModelSerializer):
+    total_price = serializers.SerializerMethodField()
 
-class BaseOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderModel
         fields = [
@@ -30,42 +33,36 @@ class BaseOrderSerializer(serializers.ModelSerializer):
             'comment',
         ]
 
+    def get_total_price(self, obj):
+        return self.get_currency_price(obj.total_price)
+
+
+
+
 class ListOrderSerializer(BaseOrderSerializer):
-    order_item = ListOrderItemSerializers   (many=True)  
+    order_item = ListOrderItemSerializers(many=True, read_only=True, context={})
     location = serializers.SerializerMethodField()
     delivery_price = serializers.SerializerMethodField()
 
-    class Meta(BaseOrderSerializer.Meta): 
-        fields = [
-            'id',
-            "reciever_phone",
+    class Meta(BaseOrderSerializer.Meta):
+        fields = BaseOrderSerializer.Meta.fields + [
             "reciever_name",
             'location',
             'delivery_price',
-            'delivery_method',
-            'payment_method',
-            'total_price',
-            'status',
-            'comment',
-            'order_type',
-            'order_item' 
+            'order_item'
         ]
-        
-        
+
     def get_delivery_price(self, obj):
-        return obj.delivery_method.price
-        
+        return self.get_currency_price(obj.delivery_method.price)
+
     def get_location(self, obj):
         return obj.location.title if obj.location else None
-        
+
 
 class RetrieveOrderSerializer(BaseOrderSerializer):
-    class Meta(BaseOrderSerializer.Meta): ...
+    class Meta(BaseOrderSerializer.Meta):
+        pass
 
-
-
-
-from decimal import Decimal
 
 class CreateOrderSerializer(serializers.ModelSerializer):
     location = CreateLocationSerializer()
@@ -107,7 +104,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             reciever_phone=reciever_data['phone'],
         )
 
-        total_price = Decimal('0.00')  
+        total_price = Decimal('0.00')
         for item in order_items_data:
             book_id = item['book'] if isinstance(item['book'], int) else item['book'].id
             book = BookModel.objects.get(id=book_id)
@@ -120,11 +117,10 @@ class CreateOrderSerializer(serializers.ModelSerializer):
                 price=price
             )
             total_price += price * quantity
-            print(book.sold_count)
-            
+
             book.sold_count = (book.sold_count or 0) + quantity
             book.save()
-    
+
         total_price += delivery_price
         order.total_price = total_price
         order.save()
@@ -144,18 +140,13 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         return order
 
 
-
-
 class OrderStatusSerializers(serializers.ModelSerializer):
     class Meta:
         model = OrderModel
-        fields = [
-            'status'
-        ]
+        fields = ['status']
 
     def validate_status(self, value):
         valid_statuses = [status.value for status in OrderStatus]
         if value not in valid_statuses:
             raise serializers.ValidationError("Invalid status.")
         return value
-
