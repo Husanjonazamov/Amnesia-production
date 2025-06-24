@@ -1,12 +1,13 @@
 from decimal import Decimal
 import requests
 from config.env import env
-import logging
-
+from core.apps.havasbook.models.book import CurrencyChoices
 
 EXCHANGE_URL = env("EXCHANGE_URL")
 
-def convert_currency(amount: Decimal, to_currency: str) -> Decimal:
+
+
+def convert_currency(amount: Decimal, to_currency: str):
     if to_currency == "USD":
         return round(amount, 2)
 
@@ -25,4 +26,17 @@ def convert_currency(amount: Decimal, to_currency: str) -> Decimal:
         return round(amount * Decimal(str(rate)), 2)
     
     except Exception as e:
-        return round(amount, 2)
+        return e
+    
+    
+    
+    
+class CurrenCyPriceMixin:
+    def get_currency_price(self, amount):
+        print(f"====\n\n{amount}\n\n")
+        result = {}
+        
+        for currency in CurrencyChoices.values:
+            result[currency] =  convert_currency(amount, currency)
+        
+        return result

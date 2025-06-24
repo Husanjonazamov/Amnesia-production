@@ -6,15 +6,15 @@ from ...models import BookModel
 from core.apps.havasbook.models.cart import CartitemModel, CartModel
 from django_core.serializers import AbstractTranslatedSerializer
 from core.apps.havasbook.models.book import CurrencyChoices
-from core.apps.havasbook.serializers.book.currency import convert_currency
+from core.apps.havasbook.serializers.book.currency import CurrenCyPriceMixin
+from core.apps.havasbook.serializers.book.BookService import ProductServices as PS
 
 
-
-class BaseBookSerializer(AbstractTranslatedSerializer):
+class BaseBookSerializer(AbstractTranslatedSerializer, CurrenCyPriceMixin):
     color = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
-    # original_price = serializers.SerializerMethodField()
+    original_price = serializers.SerializerMethodField()
     gender = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
@@ -48,50 +48,31 @@ class BaseBookSerializer(AbstractTranslatedSerializer):
         ]
         
     def get_gender(self, obj):
-        from core.apps.havasbook.serializers.gender import BaseGenderSerializer
-        return BaseGenderSerializer(obj.gender).data
+        return PS.get_gender(obj.gender)
     
     def get_brand(self, obj):
-        from core.apps.havasbook.serializers.brand import BaseBrandSerializer
-        return BaseBrandSerializer(obj.brand).data
+        return PS.get_brand(obj.brand)
     
 
     def get_color(self, obj):
-        from core.apps.havasbook.serializers.variants import BaseColorSerializer
-        request = self.context.get('request')
-        return BaseColorSerializer(obj.color.all(), many=True, context={'request': request}).data
+        return PS.get_colors(obj.color.all(), self.context.get("request"))
 
     def get_size(self, obj):
-        from core.apps.havasbook.serializers import ListSizeSerializer
-        return ListSizeSerializer(obj.size, many=True).data
+        return PS.get_sizes(obj.size.all())
+        
 
     def get_image(self, obj):
-        request = self.context.get("request")
-        if request and obj.image:
-            return request.build_absolute_uri(obj.image.url)
+        return PS.get_image_url(obj.image, self.context.get("request"))
 
 
     def get_price(self, obj):
-        request = self.context.get("request")
-        currency = request.query_params.get("currency", "USD").upper()
-
-        if currency not in CurrencyChoices.values:
-            currency = "USD"
-
-        return convert_currency(obj.price or obj.original_price, currency)
+        return self.get_currency_price(obj.price or 0)
     
     
+    def get_original_price(self, obj):
+        return self.get_currency_price(obj.original_price or 0)
+    
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-
-        for field in ["discount_percent", "price", "original_price"]:
-            value = rep.get(field)
-            if value is not None:
-                value = Decimal(value)
-                rep[field] = int(value) if value == int(value) else float(value)
-
-        return rep
 
 
 class ListBookSerializer(BaseBookSerializer):
