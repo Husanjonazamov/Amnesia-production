@@ -17,6 +17,7 @@ class BookFilter(django_filters.FilterSet):
 
     search = django_filters.CharFilter(method='filter_by_search', label='Search Books')
     popular = django_filters.BooleanFilter(method='filter_by_popular', label='Popular Books')
+    subcategory = django_filters.NumberFilter(field_name='subcategory_id')
 
 
     def filter_by_gender(self, queryset, name, value):
@@ -70,5 +71,6 @@ class BookFilter(django_filters.FilterSet):
             'popular',
             'search',
             'gender', 
-            "brand"
+            "brand",
+            "subcategory"
         ]

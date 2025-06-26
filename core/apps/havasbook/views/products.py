@@ -13,6 +13,11 @@ from ..serializers.products import (
     RetrieveProductsSerializer,
 )
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
+from core.apps.havasbook.filters.products import ProductsFilter
+
+
 
 @extend_schema(tags=["products"])
 class ProductsView(BaseViewSetMixin, ReadOnlyModelViewSet):
@@ -20,12 +25,16 @@ class ProductsView(BaseViewSetMixin, ReadOnlyModelViewSet):
     serializer_class = ListProductsSerializer
     permission_classes = [AllowAny]
 
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = ProductsFilter
+
     action_permission_classes = {}
     action_serializer_class = {
         "list": ListProductsSerializer,
         "retrieve": RetrieveProductsSerializer,
         "create": CreateProductsSerializer,
     }
+
 
 
 @extend_schema(tags=["productsImage"])
