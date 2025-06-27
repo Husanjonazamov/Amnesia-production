@@ -117,19 +117,20 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
 
         min_price = request.query_params.get("min_price")
         max_price = request.query_params.get("max_price")
+        brand = request.query_params.get("brand")
 
         if subcategory_id:
-            # Dastlab asosiy filter
             products = BookModel.objects.filter(
                 subcategory_id=subcategory_id,
                 subcategory__category__gender__gender__in=[gender, "unisex"]
             )
 
-            # Min/Max price bilan qo‘shimcha filterlash
             if min_price:
                 products = products.filter(price__gte=min_price)
             if max_price:
                 products = products.filter(price__lte=max_price)
+            if brand:
+                products = products.filter(brand_id=brand)
 
             page = self.paginate_queryset(products)
             serializer = ListBookSerializer(page, many=True, context={"request": request})
