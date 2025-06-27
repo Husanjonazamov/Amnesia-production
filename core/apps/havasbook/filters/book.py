@@ -16,7 +16,7 @@ class BookFilter(django_filters.FilterSet):
     is_discount = django_filters.BooleanFilter(field_name='is_discount', label='Discounted Books')
     is_preorder = django_filters.BooleanFilter(field_name='is_preorder', label='Pre-order Books')
     gender = django_filters.CharFilter(method="filter_by_gender")
-    brand = django_filters.CharFilter(method="brand_id")
+    brand = django_filters.NumberFilter(field_name='brand__id', lookup_expr='exact')
     search = django_filters.CharFilter(method='filter_by_search', label='Search Books')
     popular = django_filters.BooleanFilter(method='filter_by_popular', label='Popular Books')
     subcategory = django_filters.NumberFilter(field_name='subcategory_id')
