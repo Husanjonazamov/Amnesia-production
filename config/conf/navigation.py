@@ -60,7 +60,7 @@ PAGES = [
                 ),
             },
             {
-                "title": _("Kitoblar"),
+                "title": _("Mahsulotlar"),
                 "icon": "book",  # Kitoblar uchun mos icon
                 "link": reverse_lazy("admin:havasbook_bookmodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
