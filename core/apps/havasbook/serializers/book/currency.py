@@ -9,17 +9,18 @@ EXCHANGE_URL = env("EXCHANGE_URL")
 
 
 def convert_currency(amount: Decimal, to_currency: str) -> Decimal:
-    if to_currency == "USD":
+    if to_currency.upper() == "USD":
         return round(amount, 2)
 
     try:
         response = requests.get(EXCHANGE_URL, timeout=3)
         data = response.json()
 
+        # API javobi "rates" ni qaytaradi (emas "conversion_rates")
         if data.get("result") != "success":
             return round(amount, 2)
 
-        rate = data.get("conversion_rates", {}).get(to_currency.upper())
+        rate = data.get("rates", {}).get(to_currency.upper())  
         if rate is None:
             return round(amount, 2)
 
