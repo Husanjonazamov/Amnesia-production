@@ -84,6 +84,7 @@ def get_filtered_category_data(request, view):
 
         page = view.paginate_queryset(products)
         serializer = ListBookSerializer(page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
             "results": serializer.data
@@ -94,19 +95,30 @@ def get_filtered_category_data(request, view):
             category_id__in=category_ids,
             category__gender__gender__in=[gender, "unisex"]
         )
-        page = view.paginate_queryset(subcategories)
-        serializer = BaseSubcategorySerializer(page, many=True, context={"request": request})
+
+        brands = BrandModel.objects.filter(
+            category_id__in=category_ids
+        ).distinct()
+
+        subcategory_page = view.paginate_queryset(subcategories)
+        subcategory_serializer = BaseSubcategorySerializer(subcategory_page, many=True, context={"request": request})
+
+        brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
-            "results": serializer.data
+            "results": subcategory_serializer.data,
+            "brands": brand_serializer.data
         })
 
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
         ).distinct()
+
         page = view.paginate_queryset(categories)
         serializer = BaseCategorySerializer(page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
             "results": serializer.data
@@ -114,5 +126,6 @@ def get_filtered_category_data(request, view):
 
     return Response({
         "status": False,
-        "message": "Kamida gender yoki category yoki subcategory ID yuborilishi kerak."
+        "message": "Kamida gender, category yoki subcategory ID yuborilishi kerak."
     }, status=400)
+

@@ -12,6 +12,13 @@ class BrandModel(AbstractBaseModel):
     gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True)
     image = models.ImageField(upload_to="brands/", blank=True, null=True)
 
+    category = models.ForeignKey(
+        "havasbook.CategoryModel",
+        on_delete=models.CASCADE,
+        verbose_name=_("Category"),
+        blank=True, null=True
+    )
+    
     def __str__(self):
         return self.name
 

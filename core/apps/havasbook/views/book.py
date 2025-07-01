@@ -87,10 +87,6 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
     def filter_by_category(self, request):
         return get_filtered_category_data(request, self)
 
-
-        
-        
-    
     
     
 @extend_schema(tags=["bookImage"])
