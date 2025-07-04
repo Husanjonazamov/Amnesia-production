@@ -40,8 +40,8 @@ class BookModel(AbstractBaseModel):
     is_discount = models.BooleanField(_("Chegirma bormi ?"), default=False)
     discount_percent = models.DecimalField(_("chegirma foizi"), max_digits=10, decimal_places=2, null=True, blank=True)
 
-    book_id = models.CharField(_("Kitob id"), max_length=155, blank=True, null=True)
-    quantity = models.PositiveIntegerField(_("Kitob soni"), default=0, null=True, blank=True)
+    book_id = models.CharField(_("Mahsulot ID"), max_length=155, blank=True, null=True)
+    quantity = models.PositiveIntegerField(_("Mahsulot soni"), default=0, null=True, blank=True)
     sold_count = models.PositiveIntegerField(_("Sotilganlar soni"), default=0)
     view_count = models.PositiveIntegerField(_("Ko'rishlar soni"), default=0)
     popular = models.BooleanField(_("Mashhurmi ?"), default=False)
