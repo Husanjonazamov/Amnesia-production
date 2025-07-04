@@ -10,3 +10,6 @@ class BrandAdmin(ModelAdmin):
         "id",
         "__str__",
     )
+    
+    autocomplete_fields = ['category']
+    search_fields = ['name', 'gender__gender']

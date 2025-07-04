@@ -10,3 +10,6 @@ class SubcategoryAdmin(ModelAdmin):
         "id",
         "__str__",
     )
+
+
+    search_fields = ['name', 'category__gender__gender']

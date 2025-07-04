@@ -28,6 +28,8 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_filter = ('is_discount',)
     filter_horizontal = ('color', 'size')
     search_fields = ('original_price',)
+    autocomplete_fields = ['brand', 'category', 'subcategory']
+
     
 
     def save_model(self, request, obj, form, change):

@@ -12,3 +12,5 @@ class CategoryAdmin(ModelAdmin, TabbedTranslationAdmin):
         "id",
         "__str__",
     )
+    
+    search_fields = ['name', 'gender__gender']
