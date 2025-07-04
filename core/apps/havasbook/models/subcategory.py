@@ -15,7 +15,7 @@ class SubcategoryModel(AbstractBaseModel):
 
 
     def __str__(self):
-        return self.name
+        return f"{self.name}-{self.category.gender.gender}"
 
     @classmethod
     def _create_fake(self):
