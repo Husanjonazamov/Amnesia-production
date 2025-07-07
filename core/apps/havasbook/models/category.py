@@ -3,19 +3,17 @@ from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
 
 
-
 class CategoryModel(AbstractBaseModel):
-    name = models.CharField(_("name"), max_length=255)
+    name = models.CharField(_("Название"), max_length=255)
     gender = models.ForeignKey(
         "havasbook.GenderModel",
         on_delete=models.CASCADE,
         blank=True, null=True,
-        verbose_name=_("Gender")
+        verbose_name=_("Пол")
     )
    
-    image = models.ImageField(_("Rasm"), upload_to="category-image/")
+    image = models.ImageField(_("Изображение"), upload_to="category-image/")
     
-
     def __str__(self):
         return f"{self.name}-{self.gender.gender}"
 
@@ -27,5 +25,5 @@ class CategoryModel(AbstractBaseModel):
 
     class Meta:
         db_table = "category"
-        verbose_name = _("CategoryModel")
-        verbose_name_plural = _("CategoryModels")
+        verbose_name = _("Категория")
+        verbose_name_plural = _("Категории")

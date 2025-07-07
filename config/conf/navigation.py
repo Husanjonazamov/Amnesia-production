@@ -13,94 +13,84 @@ def user_has_group_or_permission(user, permission):
     return user.groups.filter(permissions__codename=permission).exists()
 
 
-
 PAGES = [
     {
         "seperator": False,
         "items": [
             {
-                "title": _("Home page"),
+                "title": _("Главная страница"),
                 "icon": "home",
                 "link": reverse_lazy("admin:index"),
             }
         ],
     },
     {
-        "title": _("Foydalanuvchilar"),
-        "separator": True,  # Top border
+        "title": _("Пользователи"),
+        "separator": True,
         "items": [
             {
-                "title": _("Foydalanuvchilar"),
+                "title": _("Пользователи"),
                 "icon": "groups_2",
                 "link": reverse_lazy("admin:accounts_user_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_group"
                 ),
             },
-            # {
-            #     "title": _("Foydalanuvchilar"),
-            #     "icon": "person_add",
-            #     "link": reverse_lazy("admin:auth_user_changelist"),
-            #     "permission": lambda request: user_has_group_or_permission(
-            #         request.user, "view_user"
-            #     ),
-            # },
         ],
     },
     {
-        "title": _("Kitoblar bo'limi"),
-        "separator": True,  # Top border
+        "title": _("Раздел Книг"),
+        "separator": True,
         "items": [
             {
-                "title": _("Bannerlar"),
-                "icon": "campaign", 
+                "title": _("Баннеры"),
+                "icon": "campaign",
                 "link": reverse_lazy("admin:havasbook_bannermodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
                 ),
             },
             {
-                "title": _("Mahsulotlar"),
-                "icon": "book",  # Kitoblar uchun mos icon
+                "title": _("Продукты"),
+                "icon": "book",
                 "link": reverse_lazy("admin:havasbook_bookmodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_group"
                 ),
             },
         ]
-
     },
     {
-        "title": _("Kategorylar"),
+        "title": _("Категории"),
         "separator": True,
         "items": [
             {
-                "title": _("Kategoryalar"),
-                "icon": "view_list",  # Asosiy kategoriya uchun
+                "title": _("Категории"),
+                "icon": "view_list",
                 "link": reverse_lazy("admin:havasbook_categorymodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
                 ),
             },
             {
-                "title": _("SubCateogry"),
-                "icon": "subdirectory_arrow_right",  # Subkategoriya uchun
+                "title": _("Подкатегории"),
+                "icon": "subdirectory_arrow_right",
                 "link": reverse_lazy("admin:havasbook_subcategorymodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
                 ),
             },
             {
-                "title": _("Gender"),
-                "icon": "wc",  # Gender uchun
+                "title": _("Пол"),
+                "icon": "wc",
                 "link": reverse_lazy("admin:havasbook_gendermodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
                 ),
             },
             {
-                "title": _("Brand"),
-                "icon": "storefront",  # Brendlar uchun
+                "title": _("Бренд"),
+                "icon": "storefront",
                 "link": reverse_lazy("admin:havasbook_brandmodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
@@ -108,66 +98,35 @@ PAGES = [
             },
         ]
     },
-
-    # {
-    #     "title": _("Savatlar bo'limi"),
-    #     "separator": True,  # Top border
-    #     "items": [
-    #         {
-    #             "title": _("Foydalanuvchi Savati"),
-    #             "icon": "shopping_cart",  # Mos icon (shopping cart)
-    #             "link": reverse_lazy("admin:havasbook_cartmodel_changelist"),
-    #             "permission": lambda request: user_has_group_or_permission(
-    #                 request.user, "view_user"
-    #             ),
-    #         },
-    #         {
-    #             "title": _("Savatdagi elementlar"),
-    #             "icon": "list_alt",  # Mos icon (list of items)
-    #             "link": reverse_lazy("admin:havasbook_cartitemmodel_changelist"),
-    #             "permission": lambda request: user_has_group_or_permission(
-    #                 request.user, "view_group"
-    #             ),
-    #         },
-    #     ]
-    # },
     {
-        "title": _("Buyurtmalar bo'limi"),
-        "separator": True,  # Top border
+        "title": _("Раздел Заказов"),
+        "separator": True,
         "items": [
             {
-                "title": _("Buyurtmalar"),
-                "icon": "shopping_cart",  # Mos icon (shopping cart)
+                "title": _("Заказы"),
+                "icon": "shopping_cart",
                 "link": reverse_lazy("admin:havasbook_ordermodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_user"
                 ),
             },
             {
-                "title": _("Buyurtma elementlar"),
-                "icon": "list_alt",  # Mos icon (list of items)
+                "title": _("Элементы заказа"),
+                "icon": "list_alt",
                 "link": reverse_lazy("admin:havasbook_orderitemmodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_group"
                 ),
             },
-            # {
-            #     "title": _("Oldindan Buyurtmalar"),
-            #     "icon": "list_alt",  # Mos icon (list of items)
-            #     "link": reverse_lazy("admin:havasbook_preordermodel_changelist"),
-            #     "permission": lambda request: user_has_group_or_permission(
-            #         request.user, "view_group"
-            #     ),
-            # },
         ]
     },
     {
-        "title": _("Yetkazib berish"),
-        "separator": True,  # Top border
+        "title": _("Доставка"),
+        "separator": True,
         "items": [
             {
-                "title": _("Yetkazib berish Turi"),
-                "icon": "list_alt",  # Mos icon (list of items)
+                "title": _("Тип доставки"),
+                "icon": "list_alt",
                 "link": reverse_lazy("admin:havasbook_deliverymodel_changelist"),
                 "permission": lambda request: user_has_group_or_permission(
                     request.user, "view_group"

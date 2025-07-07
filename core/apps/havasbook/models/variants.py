@@ -4,10 +4,9 @@ from django_core.models import AbstractBaseModel
 
 
 class ColorModel(AbstractBaseModel):
-    title = models.CharField(_("Rang"))
-    name = models.CharField(_("Rang Nomi"), max_length=50)
-    image = models.ImageField(_("Rangi"), upload_to="book-color/")
-
+    title = models.CharField(_("Цвет"))
+    name = models.CharField(_("Название цвета"), max_length=50)
+    image = models.ImageField(_("Изображение цвета"), upload_to="book-color/")
 
     def __str__(self):
         return self.name
@@ -15,18 +14,18 @@ class ColorModel(AbstractBaseModel):
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="Test",
+            name="Тест",
         )
 
     class Meta:
         db_table = "color"
-        verbose_name = _("ColorModel")
-        verbose_name_plural = _("ColorModels")
+        verbose_name = _("Цвет")
+        verbose_name_plural = _("Цвета")
 
 
 class SizeModel(AbstractBaseModel):
-    title = models.CharField(_("O'lcham"))
-    name = models.CharField(_("O'lcham nomi"), max_length=255)
+    title = models.CharField(_("Размер"))
+    name = models.CharField(_("Название размера"), max_length=255)
 
     def __str__(self):
         return self.name
@@ -34,11 +33,10 @@ class SizeModel(AbstractBaseModel):
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="Test",
+            name="Тест",
         )
 
     class Meta:
         db_table = "size"
-        verbose_name = _("SizeModel")
-        verbose_name_plural = _("SizeModels")
-
+        verbose_name = _("Размер")
+        verbose_name_plural = _("Размеры")

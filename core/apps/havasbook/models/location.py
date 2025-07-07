@@ -5,24 +5,26 @@ from geopy.geocoders import Nominatim
 
 
 class LocationModel(AbstractBaseModel):
-    title = models.CharField(_("name"), max_length=255, null=True, blank=True)
-    user = models.ForeignKey("accounts.User", on_delete=models.CASCADE, related_name="locations", blank=True, null=True) 
-    lat = models.FloatField(
-        _("Kenglik"),
-    )
-    long = models.FloatField(
-        _("Uzunlik"),
-    )
+    title = models.CharField(_("Название"), max_length=255, null=True, blank=True)
+    user = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="locations",
+        blank=True,
+        null=True
+    ) 
+    lat = models.FloatField(_("Широта"))  # Kenglik
+    long = models.FloatField(_("Долгота"))  # Uzunlik
 
     def __str__(self):
         return self.title or "tile" 
     
     def get_address(self):
         geolocator = Nominatim(user_agent="myapp")
-        location = geolocator.reverse((self.latitude, self.longitude), language='en')
+        location = geolocator.reverse((self.latitude, self.longitude), language='ru')
         if location:
             return location.address
-        return _("Address not found")
+        return _("Адрес не найден")
 
     def save(self, *args, **kwargs):
         if not self.title:
@@ -32,10 +34,10 @@ class LocationModel(AbstractBaseModel):
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="Test",
+            name="Тест",
         )
 
     class Meta:
         db_table = "location"
-        verbose_name = _("LocationModel")
-        verbose_name_plural = _("LocationModels")
+        verbose_name = _("Локация")
+        verbose_name_plural = _("Локации")

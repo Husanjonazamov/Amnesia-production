@@ -4,7 +4,7 @@ from django_core.models import AbstractBaseModel
 
 
 class BannerModel(AbstractBaseModel):
-    image = models.ImageField(_("Rasm"), upload_to="banner-image/")    
+    image = models.ImageField(_("Изображение"), upload_to="banner-image/")    
     
     @classmethod
     def _create_fake(self):

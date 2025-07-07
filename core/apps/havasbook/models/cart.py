@@ -5,7 +5,6 @@ from core.apps.accounts.models.user import User
 from django.db.models import Sum
 
 
-
 class CartModel(AbstractBaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -19,7 +18,6 @@ class CartModel(AbstractBaseModel):
     
     def __str__(self):
         return self.user.first_name
-    
         
     @classmethod
     def _create_fake(self):
@@ -29,8 +27,9 @@ class CartModel(AbstractBaseModel):
 
     class Meta:
         db_table = "cart"
-        verbose_name = _("CartModel")
-        verbose_name_plural = _("CartModels")
+        verbose_name = _("Корзина")
+        verbose_name_plural = _("Корзины")
+
 
 
 class CartitemModel(AbstractBaseModel):
@@ -43,7 +42,7 @@ class CartitemModel(AbstractBaseModel):
         'havasbook.BookModel',
         on_delete=models.CASCADE
     )
-    quantity = models.PositiveBigIntegerField(_("Mahsulot soni"), default=1)
+    quantity = models.PositiveBigIntegerField(_("Количество товара"), default=1)
     color = models.ForeignKey(
         'havasbook.ColorModel',
         on_delete=models.CASCADE,
@@ -73,5 +72,5 @@ class CartitemModel(AbstractBaseModel):
 
     class Meta:
         db_table = "cartItem"
-        verbose_name = _("CartitemModel")
-        verbose_name_plural = _("CartitemModels")
+        verbose_name = _("Товар в корзине")
+        verbose_name_plural = _("Товары в корзине")

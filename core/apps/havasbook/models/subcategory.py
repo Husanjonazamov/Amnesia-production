@@ -4,14 +4,13 @@ from django_core.models import AbstractBaseModel
 
 
 class SubcategoryModel(AbstractBaseModel):
-    name = models.CharField(verbose_name=_("name"), max_length=255)
+    name = models.CharField(verbose_name=_("Название"), max_length=255)
     category = models.ForeignKey(
         "havasbook.CategoryModel",
         on_delete=models.CASCADE,
-        verbose_name=_("Cateogry"),
+        verbose_name=_("Категория"),
         blank=True, null=True
     )
-    
 
     def __str__(self):
         return f"{self.name}-{self.category.gender.gender}"
@@ -19,10 +18,10 @@ class SubcategoryModel(AbstractBaseModel):
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="mock",
+            name="Тест",
         )
 
     class Meta:
         db_table = "subcategory"
-        verbose_name = _("SubcategoryModel")
-        verbose_name_plural = _("SubcategoryModels")
+        verbose_name = _("Подкатегория")
+        verbose_name_plural = _("Подкатегории")

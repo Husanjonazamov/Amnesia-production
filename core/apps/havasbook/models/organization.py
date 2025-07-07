@@ -5,24 +5,24 @@ from django_core.models import AbstractBaseModel
 
 class OrganizationModel(AbstractBaseModel):
     name = models.CharField(
-        verbose_name=_("Ism"),
+        verbose_name=_("Название"),
         max_length=255,
     )
     phone = models.CharField(
-        verbose_name=_("Telefon raqam"),
+        verbose_name=_("Номер телефона"),
         max_length=20,
         blank=True, 
         null=True
     )
     bot_token = models.CharField(   
-        verbose_name=_("Token"),
+        verbose_name=_("Токен бота"),
         max_length=200, 
         blank=True, 
         null=True
     ) 
 
     def __str__(self):
-        return self.pk
+        return str(self.pk)
 
     @classmethod
     def _create_fake(self):
@@ -32,5 +32,5 @@ class OrganizationModel(AbstractBaseModel):
 
     class Meta:
         db_table = "Organization"
-        verbose_name = _("OrganizationModel")
-        verbose_name_plural = _("OrganizationModels")
+        verbose_name = _("Организация")
+        verbose_name_plural = _("Организации")

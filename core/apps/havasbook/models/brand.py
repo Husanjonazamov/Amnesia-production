@@ -1,12 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
-
-
-
 class BrandModel(AbstractBaseModel):
     name = models.CharField(
-        verbose_name=_("Brand"), 
+        verbose_name=_("Бренд"), 
         max_length=255
     )
     gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True)
@@ -15,7 +12,7 @@ class BrandModel(AbstractBaseModel):
     category = models.ForeignKey(
         "havasbook.CategoryModel",
         on_delete=models.CASCADE,
-        verbose_name=_("Category"),
+        verbose_name=_("Категория"),
         blank=True, null=True
     )
     
@@ -30,5 +27,5 @@ class BrandModel(AbstractBaseModel):
 
     class Meta:
         db_table = "brand"
-        verbose_name = _("BrandModel")
-        verbose_name_plural = _("BrandModels")
+        verbose_name = _("Бренд")
+        verbose_name_plural = _("Бренды")

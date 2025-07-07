@@ -3,30 +3,29 @@ from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
 
 
-
 class DeliveryMethodChoice(models.TextChoices):
-    DOOR_DELIVERY = "door_delivery", _("Eski uyga (Toshkent bo'ylab kur'er orqali yetkazib berish) 20.000~35.000 so'm")
-    PICKUP_POINT = "pickup_point", _("Yetkazib berish nuqtasiga (BTS pochta orqali O'zbekiston bo'ylab) 25.000~50.000 so'm")
+    DOOR_DELIVERY = "door_delivery", _("На дом (доставка курьером по Ташкенту) 20.000~35.000 сум")
+    PICKUP_POINT = "pickup_point", _("В пункт выдачи (через BTS-почту по Узбекистану) 25.000~50.000 сум")
+
 
 
 class PaymentMethodChoice(models.TextChoices):
     CLICK = "click", _("Click")
     PAYME = "payme", _("Payme")
     PAYNET = "paynet", _("Paynet")
-    UZUM = "uzum_card", _("Uzum karta")
+    UZUM = "uzum_card", _("Карта Uzum")
 
 
- 
+
 class OrderStatus(models.TextChoices):
-    NEW = "new", _("Yangi")
-    DELIVERED = "delivered", _("Topshirilgan")
-    CANCELLED = "cancelled", _("Bekor qilingan")
+    NEW = "new", _("Новый")
+    DELIVERED = "delivered", _("Доставлен")
+    CANCELLED = "cancelled", _("Отменен")
 
 
 class OrderType(models.TextChoices):
-    ORDER = "order", _("Oddiy buyurtma")
-    PREORDER = "preorder", _("Oldindan buyurtma")
-
+    ORDER = "order", _("Обычный заказ")
+    PREORDER = "preorder", _("Предзаказ")
 
 
 class OrderModel(AbstractBaseModel):
@@ -35,8 +34,8 @@ class OrderModel(AbstractBaseModel):
         on_delete=models.CASCADE,
         related_name="orders"
     )
-    reciever_name = models.CharField(_("Ism"), max_length=100,  null=True, blank=True)
-    reciever_phone = models.CharField(_("Telefon raqam"), max_length=100, null=True, blank=True)
+    reciever_name = models.CharField(_("Имя получателя"), max_length=100, null=True, blank=True)
+    reciever_phone = models.CharField(_("Номер телефона"), max_length=100, null=True, blank=True)
     location = models.ForeignKey(
         "havasbook.LocationModel",
         on_delete=models.CASCADE,
@@ -49,42 +48,39 @@ class OrderModel(AbstractBaseModel):
         null=True, blank=True
     )
     order_type = models.CharField(
-        verbose_name=_("Buyurtma turi"),
+        verbose_name=_("Тип заказа"),
         max_length=100,
         choices=OrderType.choices,
         default=OrderType.ORDER
     )
-     
     payment_method = models.CharField(
-        _("To'lov turi"),
+        _("Метод оплаты"),
         max_length=50,
         choices=PaymentMethodChoice.choices,
         default='click'
     )
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) 
+    total_price = models.DecimalField(_("Общая сумма"), max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(
-        _("Status"),
+        _("Статус"),
         max_length=50,
         choices=OrderStatus.choices,
         default=OrderStatus.NEW
     )  
-    comment = models.TextField(_("Buyrtma uchun izoh"), null=True, blank=True) 
-
+    comment = models.TextField(_("Комментарий к заказу"), null=True, blank=True) 
 
     def __str__(self):
         return self.user.first_name
 
-
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="Test",
+            name="Тест",
         )
 
     class Meta:
         db_table = "order"
-        verbose_name = _("OrderModel")
-        verbose_name_plural = _("OrderModels")
+        verbose_name = _("Заказ")
+        verbose_name_plural = _("Заказы")
 
 
 class OrderitemModel(AbstractBaseModel):
@@ -98,9 +94,8 @@ class OrderitemModel(AbstractBaseModel):
         on_delete=models.CASCADE,
         related_name="order_item"
     )
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)  
-
+    quantity = models.PositiveIntegerField(_("Количество"), default=1)
+    price = models.DecimalField(_("Цена"), max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.order.reciever_name
@@ -108,10 +103,10 @@ class OrderitemModel(AbstractBaseModel):
     @classmethod
     def _create_fake(self):
         return self.objects.create(
-            name="Test",
+            name="Тест",
         )
 
     class Meta:
-        db_table = "orderITem"
-        verbose_name = _("OrderitemModel")
-        verbose_name_plural = _("OrderitemModels")
+        db_table = "orderItem"
+        verbose_name = _("Товар в заказе")
+        verbose_name_plural = _("Товары в заказе")
