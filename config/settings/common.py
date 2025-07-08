@@ -166,6 +166,7 @@ CORS_ALLOW_HEADERS = [
 LANGUAGES = (
     ("ru", _("Russia")),
     ("kril", _("Kyril")),
+    ("en", _("English")),
     ("uz", _("Uzbek")),
 )
 LOCALE_PATHS = [os.path.join(BASE_DIR, "resources/locale")]
@@ -185,13 +186,14 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS").split(",")
 SILKY_AUTHORISATION = True
 SILKY_PYTHON_PROFILER = True
 
-MODELTRANSLATION_LANGUAGES = ("uz", "kril", "ru")
+MODELTRANSLATION_LANGUAGES = ("uz", "en", "kril", "ru")
 MODELTRANSLATION_DEFAULT_LANGUAGE = "uz"
 
 PARLER_LANGUAGES = {
     None: (
         {'code': 'uz',},
         {'code': 'kril',},
+        {'code': 'en',},
         {'code': 'ru',},
     ),
     'default': {
