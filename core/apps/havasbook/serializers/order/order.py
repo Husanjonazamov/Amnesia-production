@@ -131,9 +131,6 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
         send_order_to_telegram(
             order=order,
-            location_name=location.title,
-            latitude=location.lat,
-            longitude=location.long
         )
         send_payment_link(order)
 
