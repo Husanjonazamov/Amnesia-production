@@ -10,11 +10,11 @@ from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 from core.apps.havasbook.serializers.book.BookService import ProductServices as PS
 
 
-class BaseBookSerializer(AbstractTranslatedSerializer, BaseCurrencyPriceMixin):
+class BaseBookSerializer(AbstractTranslatedSerializer):
     color = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
-    original_price = serializers.SerializerMethodField()
+    # price = serializers.SerializerMethodField()
+    # original_price = serializers.SerializerMethodField()
     gender = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
@@ -65,12 +65,12 @@ class BaseBookSerializer(AbstractTranslatedSerializer, BaseCurrencyPriceMixin):
         return PS.get_image_url(obj.image, self.context.get("request"))
 
 
-    def get_price(self, obj):
-        return self.get_currency_price(obj.price or 0)
+    # def get_price(self, obj):
+    #     return self.get_currency_price(obj.price or 0)
     
     
-    def get_original_price(self, obj):
-        return self.get_currency_price(obj.original_price or 0)
+    # def get_original_price(self, obj):
+    #     return self.get_currency_price(obj.original_price or 0)
     
 
 
