@@ -90,9 +90,7 @@ class BookFilter(django_filters.FilterSet):
             return queryset
 
     def filter_by_popular(self, queryset, name, value):
-        if value:
-            return queryset.filter(popular=True)
-        return queryset
+        return queryset.filter(popular=value)
 
     def convert_to_usd(self, value: Decimal) -> Decimal:
         if not self.currency or self.currency.upper() == "USD":
