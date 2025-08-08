@@ -5,6 +5,7 @@ Accounts app urls
 from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
 from .views import RegisterView, ResetPasswordView, MeView, ChangePasswordView
+from core.apps.accounts.views.users import UserPostView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -24,5 +25,9 @@ urlpatterns = [
         "auth/token/refresh/",
         jwt_views.TokenRefreshView.as_view(),
         name="token_refresh",
+    ),
+     path(
+        "users-list/",
+        UserPostView.as_view(), name="user-list"
     ),
 ]

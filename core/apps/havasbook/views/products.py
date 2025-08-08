@@ -19,6 +19,8 @@ from core.apps.havasbook.filters.products import ProductsFilter
 
 
 
+from pyinstrument import Profiler
+
 @extend_schema(tags=["products"])
 class ProductsView(BaseViewSetMixin, ReadOnlyModelViewSet):
     queryset = ProductsModel.objects.all()
@@ -34,6 +36,17 @@ class ProductsView(BaseViewSetMixin, ReadOnlyModelViewSet):
         "retrieve": RetrieveProductsSerializer,
         "create": CreateProductsSerializer,
     }
+
+    def list(self, request, *args, **kwargs):
+        profiler = Profiler()
+        profiler.start()
+
+        response = super().list(request, *args, **kwargs)
+
+        profiler.stop()
+        print(profiler.output_text(unicode=True, color=True))
+
+        return response
 
 
 
