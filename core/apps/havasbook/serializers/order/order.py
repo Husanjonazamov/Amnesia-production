@@ -100,8 +100,6 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             payment_method=validated_data.get('payment_method'),
             comment=validated_data.get('comment'),
             order_type=validated_data.get('order_type'),
-            reciever_name=reciever_data['name'],
-            reciever_phone=reciever_data['phone'],
         )
 
         total_price = Decimal('0.00')
