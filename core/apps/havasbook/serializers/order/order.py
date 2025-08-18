@@ -64,6 +64,7 @@ class RetrieveOrderSerializer(BaseOrderSerializer):
         pass
 
 
+
 class CreateOrderSerializer(serializers.ModelSerializer):
     location = CreateLocationSerializer()
     order_item = CreateOrderitemSerializer(many=True)
@@ -89,10 +90,14 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
         user = self.context['request'].user
 
+        # Location yaratish
         location = LocationModel.objects.create(**location_data)
+
+        # Yetkazib berish
         delivery_method = validated_data['delivery_method']
         delivery_price = delivery_method.price if delivery_method.price is not None else Decimal('0.00')
 
+        # Order yaratish
         order = OrderModel.objects.create(
             user=user,
             location=location,
@@ -100,36 +105,45 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             payment_method=validated_data.get('payment_method'),
             comment=validated_data.get('comment'),
             order_type=validated_data.get('order_type'),
+
+            # ✅ Reciever ma'lumotlarini saqlash
+            reciever_name=reciever_data.get("name"),
+            reciever_phone=reciever_data.get("phone") or reciever_data.get("userName"),
+            reciever_userName=reciever_data.get("userName"),
         )
 
+        # Order items yaratish va umumiy narx hisoblash
         total_price = Decimal('0.00')
         for item in order_items_data:
             book_id = item['book'] if isinstance(item['book'], int) else item['book'].id
             book = BookModel.objects.get(id=book_id)
             price = book.price if book.price is not None else Decimal('0.00')
             quantity = item['quantity']
+
             OrderitemModel.objects.create(
                 order=order,
                 book=book,
                 quantity=quantity,
                 price=price
             )
+
             total_price += price * quantity
 
             book.sold_count = (book.sold_count or 0) + quantity
             book.save()
-
+        # Yetkazib berish narxini qo‘shish
         total_price += delivery_price
         order.total_price = total_price
         order.save()
 
+        # Cartni tozalash
         cart = CartModel.objects.filter(user=user).first()
         if cart:
             CartitemModel.objects.filter(cart=cart).delete()
 
-        send_order_to_telegram(
-            order=order,
-        )
+        # Telegramga yuborish
+        send_order_to_telegram(order=order)
+
         return order
 
 
