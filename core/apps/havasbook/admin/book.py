@@ -5,11 +5,9 @@ from unfold.admin import ModelAdmin, TabularInline
 from ..models import BookimageModel, BookModel
 
 
-
 class BookimageInline(TabularInline):
     model = BookimageModel
-    extra = 1 
-
+    extra = 1
 
 
 @admin.register(BookModel)
@@ -20,29 +18,31 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
         "__str__",
         'name',
         'price',
+        "category",
+        "get_subcategory",
         'quantity',
-        "book_id",
+        "created_at",
         'is_discount',
     )
-    
-    list_filter = ('is_discount',)
-    filter_horizontal = ('color', 'size')
+
+    list_filter = ('is_discount', "created_at", )
     search_fields = ('original_price',)
     autocomplete_fields = ['brand', 'category', 'subcategory']
 
-    
+    def get_subcategory(self, obj):
+        return obj.category.subcategory if obj.category else "-"
+    get_subcategory.short_description = "Подкатегория"
 
+    
     def save_model(self, request, obj, form, change):
         if obj.is_discount and obj.discount_percent is not None:
             obj.price = obj.original_price - (obj.original_price * obj.discount_percent / 100)
         else:
-            obj.price = obj.original_price  # Chegirma yo'q bo'lsa, original_price'ni saqlaydi
+            obj.price = obj.original_price
         super().save_model(request, obj, form, change)
-        
-        
-    inlines = [
-        BookimageInline,
-    ]
+
+    inlines = [BookimageInline]
+
 
 @admin.register(BookimageModel)
 class BookimageAdmin(ModelAdmin):
@@ -50,12 +50,13 @@ class BookimageAdmin(ModelAdmin):
         "id",
         "__str__",
         'book_name',
-        'book_is_discount'
+        'book_is_discount',
     )
-    
+
     def book_name(self, obj):
         return obj.book.name if obj.book else "Kitob Topilmadi"
-    
+    book_name.short_description = "Kitob nomi"
+
     def book_is_discount(self, obj):
-        return obj.book.is_discount if obj.book else "Narx nomalum"
-    
+        return obj.book.is_discount if obj.book else "Chegirma yo‘q"
+    book_is_discount.short_description = "Chegirma"
