@@ -20,7 +20,7 @@ def send_order_to_telegram(order):
 
     caption = (
         f"📦 <b>Новый заказ</b> #{order.id}\n\n"
-        f"👤 <b>Клиент:</b> @{order.reciever_name}\n"
+        f"👤 <b>Клиент:</b> @{order.reciever_userName}\n"
         f"💰 <b>Общая сумма:</b> {int(order.total_price):,} сум\n"
         f"🗒️ <b>Комментарий:</b> {order.comment or 'Нет'}\n"
         f"💳 <b>Тип оплаты:</b> {order.payment_method.capitalize()}\n\n"
