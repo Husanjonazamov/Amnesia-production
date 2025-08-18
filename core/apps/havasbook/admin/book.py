@@ -30,8 +30,13 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
     autocomplete_fields = ['brand', 'category', 'subcategory']
 
     def get_subcategory(self, obj):
-        return obj.category.subcategory if obj.category else "-"
+        if obj.category and hasattr(obj.category, "subcategories"):
+           subs = obj.category.subcategories.all()
+           return ", ".join([s.name for s in subs]) if subs.exists() else None
+        return None
+
     get_subcategory.short_description = "Подкатегория"
+
 
     
     def save_model(self, request, obj, form, change):
