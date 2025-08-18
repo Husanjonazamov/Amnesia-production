@@ -130,7 +130,6 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         send_order_to_telegram(
             order=order,
         )
-
         return order
 
 
