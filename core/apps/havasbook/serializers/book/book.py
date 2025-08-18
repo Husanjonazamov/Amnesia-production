@@ -10,6 +10,8 @@ from core.apps.havasbook.serializers.book.currency import BaseCurrencyPriceMixin
 from core.apps.havasbook.serializers.book.BookService import ProductServices as PS
 
 
+
+
 class BaseBookSerializer(AbstractTranslatedSerializer, BaseCurrencyPriceMixin):
     color = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()

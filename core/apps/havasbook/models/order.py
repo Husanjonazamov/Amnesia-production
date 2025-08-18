@@ -36,6 +36,7 @@ class OrderModel(AbstractBaseModel):
     )
     reciever_name = models.CharField(_("Имя получателя"), max_length=100, null=True, blank=True)
     reciever_phone = models.CharField(_("Номер телефона"), max_length=100, null=True, blank=True)
+    reciever_userName = models.CharField(_("Username"), max_length=200, blank=True, null=True)
     location = models.ForeignKey(
         "havasbook.LocationModel",
         on_delete=models.CASCADE,
