@@ -3,11 +3,49 @@ from modeltranslation.admin import TabbedTranslationAdmin
 from unfold.admin import ModelAdmin, TabularInline
 
 from ..models import BookimageModel, BookModel
+from django.contrib.admin import DateFieldListFilter
+
+
+from django.contrib.admin import SimpleListFilter
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from datetime import timedelta
 
 
 class BookimageInline(TabularInline):
     model = BookimageModel
     extra = 1
+
+
+
+
+
+class CreatedAtMonthFilter(SimpleListFilter):
+    title = _('Month')
+    parameter_name = 'month'
+
+    def lookups(self, request, model_admin):
+        """
+        Joriy yil bo‘yicha 1 (Yanvar) dan 12 (Dekabr) gacha oylarni chiqaradi
+        """
+        today = timezone.now().date()
+        year = today.year
+        months = []
+        for m in range(1, 13):
+            month_date = today.replace(month=m, day=1)
+            months.append((
+                f"{year}-{m:02d}",   # filter value
+                month_date.strftime("%B %Y")  # label (Yanvar 2025, Fevral 2025, ...)
+            ))
+        return months
+
+    def queryset(self, request, queryset):
+        if self.value():
+            year, month = map(int, self.value().split('-'))
+            return queryset.filter(created_at__year=year, created_at__month=month)
+        return queryset
+
+
 
 
 @admin.register(BookModel)
@@ -25,7 +63,8 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
         'is_discount',
     )
 
-    list_filter = ('is_discount', "created_at", )
+    list_filter = ('is_discount', CreatedAtMonthFilter,)
+
     search_fields = ('original_price',)
     autocomplete_fields = ['brand', 'category', 'subcategory']
 
