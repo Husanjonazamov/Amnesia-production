@@ -59,7 +59,7 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = BookFilter
     ordering_fields = ['price', 'sold_count', 'view_count', 'created_at', 'popular'] 
-    ordering = ['-sold_count']
+    ordering = ['-created_at']
 
     action_permission_classes = {}
     action_serializer_class = {
