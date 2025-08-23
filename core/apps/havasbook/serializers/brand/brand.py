@@ -21,7 +21,6 @@ class BaseBrandSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
             
 
-
 class ListBrandSerializer(BaseBrandSerializer):
     class Meta(BaseBrandSerializer.Meta): ...
 

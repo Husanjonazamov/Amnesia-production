@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
+
 class BrandModel(AbstractBaseModel):
     name = models.CharField(
         verbose_name=_("Бренд"), 
@@ -9,11 +10,21 @@ class BrandModel(AbstractBaseModel):
     gender = models.ForeignKey("havasbook.GenderModel", on_delete=models.CASCADE, blank=True, null=True)
     image = models.ImageField(upload_to="brands/", blank=True, null=True)
 
+    categories = models.ManyToManyField(
+        "havasbook.CategoryModel",
+        verbose_name=_("Категория"),
+        blank=True,
+        related_name="brands"  
+    )
+
+
     category = models.ForeignKey(
         "havasbook.CategoryModel",
         on_delete=models.CASCADE,
         verbose_name=_("Категория"),
-        blank=True, null=True
+        blank=True,
+        null=True,
+        related_name="main_brands" 
     )
     
     def __str__(self):

@@ -1,5 +1,3 @@
-# core/apps/havasbook/filters/helpers/book_helpers.py
-
 from django.db.models import Q
 from core.apps.havasbook.models import BookModel, BrandModel, CategoryModel, SubcategoryModel
 from core.apps.havasbook.serializers import (
@@ -9,16 +7,10 @@ from rest_framework.response import Response
 import re
 
 
-
-
-
-
 def parse_id_list(param):
     if not param:
         return []
     return list(map(int, re.findall(r'\d+', param)))
-
-
 
 
 
@@ -51,9 +43,6 @@ def get_filtered_brands(request, view):
         "status": True,
         "results": serializer.data
     })
-
-
-
 
 
 def get_filtered_category_data(request, view):
@@ -97,7 +86,7 @@ def get_filtered_category_data(request, view):
         )
 
         brands = BrandModel.objects.filter(
-            category_id__in=category_ids
+            categories__id__in=category_ids
         ).distinct()
 
         subcategory_page = view.paginate_queryset(subcategories)
@@ -128,4 +117,3 @@ def get_filtered_category_data(request, view):
         "status": False,
         "message": "Kamida gender, category yoki subcategory ID yuborilishi kerak."
     }, status=400)
-

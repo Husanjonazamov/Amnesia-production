@@ -4,6 +4,8 @@ from unfold.admin import ModelAdmin
 from core.apps.havasbook.models import BrandModel
 
 
+
+
 @admin.register(BrandModel)
 class BrandAdmin(ModelAdmin):
     list_display = (
@@ -11,8 +13,11 @@ class BrandAdmin(ModelAdmin):
         "__str__",
     )
     
-    autocomplete_fields = ['category']
+    autocomplete_fields = ['category', 'categories', ]
     search_fields = ['name', 'gender__gender']
+    # form = BrandAdminForm
+    
+    exclude = ('category',)
     
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
