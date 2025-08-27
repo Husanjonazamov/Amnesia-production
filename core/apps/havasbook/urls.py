@@ -48,6 +48,6 @@ router.register(r"search", BooksSearchView, basename="search")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('cart/notification/<int:tg_id>/', CartNotificationAPIView.as_view(), name='cart-notification'),
+    path('notification/', CartNotificationAPIView.as_view(), name='cart-notification'),
 
 ]
