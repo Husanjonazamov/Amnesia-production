@@ -12,3 +12,5 @@ from .preorder import *  # noqa
 from .products import *  # noqa
 from .subcategory import *  # noqa
 from .variants import *  # noqa
+from .notification import *  # noqa
+

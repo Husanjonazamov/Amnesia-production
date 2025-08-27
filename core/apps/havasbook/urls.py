@@ -14,10 +14,12 @@ from core.apps.havasbook.views import (
     DeliveryView,
     GenderView,
     BrandView,
-    SubcategoryView
+    SubcategoryView,
+    UserPermission
     
 
 )
+from core.apps.havasbook.views.notification import CartNotificationAPIView
 
 router = DefaultRouter()
 router.register(r"banner", BannerView, basename='banner')
@@ -46,4 +48,6 @@ router.register(r"search", BooksSearchView, basename="search")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path('cart/notification/<int:tg_id>/', CartNotificationAPIView.as_view(), name='cart-notification'),
+
 ]
