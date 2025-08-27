@@ -15,7 +15,8 @@ APPS = [
     "rest_framework_simplejwt",
     "django_core",
     "core.apps.accounts.apps.AccountsConfig",
-    'core.apps.havasbook',
+    "core.apps.havasbook.apps.ModuleConfig",
+
     'core.apps.user',
     'core.apps.bot',
 

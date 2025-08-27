@@ -11,7 +11,8 @@ class BaseBrandSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "gender",
-            "image"
+            "image",
+            "has_products"
             
         ]
         

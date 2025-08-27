@@ -32,6 +32,7 @@ class BookModel(AbstractBaseModel):
         "havasbook.BrandModel",
         on_delete=models.CASCADE,
         verbose_name=_("Бренд"),
+        related_name="products",
         blank=True,
         null=True
     )

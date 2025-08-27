@@ -26,6 +26,8 @@ class BrandModel(AbstractBaseModel):
         null=True,
         related_name="main_brands" 
     )
+    has_products = models.BooleanField(default=False, verbose_name=_("Mahsulot borligi"))
+
     
     def __str__(self):
         return f"{self.name}-{self.gender.gender}"
