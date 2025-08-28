@@ -17,6 +17,10 @@ class BrandModel(AbstractBaseModel):
         related_name="brands"  
     )
 
+    subcategories = models.ManyToManyField(
+        "havasbook.SubcategoryModel", related_name="brands", blank=True
+    )
+    
 
     category = models.ForeignKey(
         "havasbook.CategoryModel",

@@ -13,11 +13,11 @@ class BrandAdmin(ModelAdmin):
         "__str__",
     )
     
-    autocomplete_fields = ['category', 'categories', ]
+    autocomplete_fields = ['subcategories', 'categories', ]
     search_fields = ['name', 'gender__gender']
     # form = BrandAdminForm
     
-    exclude = ('category',)
+    exclude = ('category', )
     
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)

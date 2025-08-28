@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django_core.models import AbstractBaseModel
 
 
+
 class SubcategoryModel(AbstractBaseModel):
     name = models.CharField(verbose_name=_("Название"), max_length=255)
     category = models.ForeignKey(
@@ -13,7 +14,7 @@ class SubcategoryModel(AbstractBaseModel):
     )
 
     def __str__(self):
-        return f"{self.name}-{self.category.gender.gender}"
+        return f"{self.name}-{self.category.name}"
 
     @classmethod
     def _create_fake(self):
