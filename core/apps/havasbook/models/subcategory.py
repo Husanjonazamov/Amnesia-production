@@ -12,6 +12,7 @@ class SubcategoryModel(AbstractBaseModel):
         verbose_name=_("Категория"),
         blank=True, null=True
     )
+    
 
     def __str__(self):
         return f"{self.name}-{self.category.name}"

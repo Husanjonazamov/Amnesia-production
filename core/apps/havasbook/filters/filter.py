@@ -50,8 +50,9 @@ def get_filtered_data(request, view):
 
     # 2️⃣ SUBCATEGORY YUBORILGAN HOLAT
     elif subcategory_ids:
+        # Faqat shu subcategory ichida product mavjud bo‘lgan brandlar
         brands = BrandModel.objects.filter(
-            subcategories__id__in=subcategory_ids
+            products__subcategory_id__in=subcategory_ids
         ).distinct()
 
         page = view.paginate_queryset(brands)
@@ -70,8 +71,9 @@ def get_filtered_data(request, view):
             category__gender__gender__in=[gender, "unisex"]
         ).distinct()
 
+        # Faqat product mavjud bo‘lgan brandlar
         brands = BrandModel.objects.filter(
-            Q(categories__id__in=category_ids) | Q(subcategories__category_id__in=category_ids)
+            products__subcategory__category_id__in=category_ids
         ).distinct()
 
         sub_page = view.paginate_queryset(subcategories)
