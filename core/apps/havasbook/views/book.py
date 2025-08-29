@@ -24,7 +24,7 @@ from django.db.models import Q
 
 
 from core.apps.havasbook.filters.filter import (
-    get_filtered_data,
+    get_filtered_brands,
     get_filtered_data,
 )
 
@@ -81,7 +81,7 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="brands")
     def filter_by_gender_and_brand(self, request):
-        return get_filtered_data(request, self)
+        return get_filtered_brands(request, self)
 
     @action(detail=False, methods=["get"], url_path="category", permission_classes=[AllowAny])
     def filter_by_category(self, request):

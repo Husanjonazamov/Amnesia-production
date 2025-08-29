@@ -14,6 +14,41 @@ def parse_id_list(param):
     return list(map(int, re.findall(r'\d+', param)))
 
 
+
+
+
+def get_filtered_brands(request, view):
+    gender = request.query_params.get("gender")
+    brand_param = request.query_params.get("brand")
+    brand_ids = parse_id_list(brand_param)
+
+    if brand_ids:
+        products = BookModel.objects.filter(
+            brand_id__in=brand_ids
+        ).filter(
+            Q(gender__gender=gender) | Q(gender__gender="unisex")
+        )
+
+        page = view.paginate_queryset(products)
+        serializer = ListBookSerializer(page, many=True, context={"request": request})
+        return view.get_paginated_response({
+            "status": True,
+            "results": serializer.data
+        })
+
+    brands = BrandModel.objects.filter(
+        Q(gender__gender=gender) | Q(gender__gender='unisex')
+    ).distinct()
+
+    page = view.paginate_queryset(brands)
+    serializer = BaseBrandSerializer(page, many=True, context={"request": request})
+    return view.get_paginated_response({
+        "status": True,
+        "results": serializer.data
+    })
+
+
+
 def get_filtered_data(request, view):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
