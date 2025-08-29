@@ -20,6 +20,7 @@ class BaseBookSerializer(AbstractTranslatedSerializer, BaseCurrencyPriceMixin):
     gender = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = BookModel
@@ -30,6 +31,7 @@ class BaseBookSerializer(AbstractTranslatedSerializer, BaseCurrencyPriceMixin):
         fields = [
             'id',
             'category',
+            "subcategory",
             'name',
             'image',
             'color',
