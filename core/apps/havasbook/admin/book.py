@@ -66,7 +66,7 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_filter = ('is_discount', CreatedAtMonthFilter,)
 
     search_fields = ('original_price',)
-    autocomplete_fields = ['brand', 'category', 'subcategory', 'color', 'size']
+    autocomplete_fields = ['brand', 'category', 'subcategory', 'color', 'size', ]
 
     def get_subcategory(self, obj):
         if obj.category and hasattr(obj.category, "subcategories"):

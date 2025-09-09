@@ -12,6 +12,8 @@ class ColorAdmin(ModelAdmin, TabbedTranslationAdmin):
         "id",
         "__str__",
     )
+    search_fields = ['title']
+    
 
 
 @admin.register(SizeModel)
@@ -20,3 +22,5 @@ class SizeAdmin(ModelAdmin, TabbedTranslationAdmin):
         "id",
         "__str__",
     )
+
+    search_fields = ['title']
