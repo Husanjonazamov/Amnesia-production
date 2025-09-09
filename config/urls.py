@@ -2,18 +2,25 @@
 All urls configurations tree
 """
 
-from django.conf import settings
 from config.env import env
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
 from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
                                    SpectacularSwaggerView)
+from django.http import HttpResponse
+
+
+def home(request):
+    return HttpResponse("OK")
+
 
 ################
 # My apps url
 ################
 urlpatterns = [
+    path("health/", home),
     path("", include("core.apps.accounts.urls")),
     path("", include("core.apps.havasbook.urls")),
     path("", include("core.apps.payments.urls")),
@@ -35,10 +42,11 @@ urlpatterns += [
 ################
 # Project env debug mode
 ################
-if env.str("PROJECT_ENV") == "debug":
+if env.bool("SILK_ENEBLED", False):
     urlpatterns += [
         path('silk/', include('silk.urls', namespace='silk'))
     ]
+if env.str("PROJECT_ENV") == "debug":
 
     ################
     # Swagger urls

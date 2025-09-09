@@ -29,7 +29,8 @@ django-redis==5.4.0
 django-rosetta==0.10.1
 django-silk==5.3.2
 django-storages==1.14.6
-django-unfold==0.42.0
+django-unfold==0.65.0
+
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.28.0
@@ -50,7 +51,7 @@ jaraco.text==4.0.0
 jmespath==1.0.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
-jst-django-core==1.1.8
+jst-django-core~=1.2.2
 jst-parler==1.0.0
 jst-parler-rest==1.0.1
 kombu==5.4.2
@@ -93,3 +94,5 @@ uvicorn==0.32.1
 vine==5.1.0
 wcwidth==0.2.13
 zipp==3.21.0
+pytest-django
+pyinstrument

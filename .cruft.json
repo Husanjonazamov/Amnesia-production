@@ -1,28 +1,33 @@
 {
-    "template": "https://github.com/JscorpTech/django",
-    "commit": "d8682a7685597c2cf088da2f240b78a7a71e91ec",
-    "checkout": null,
-    "context": {
-        "cookiecutter": {
-            "cacheops": true,
-            "silk": true,
-            "storage": true,
-            "rosetta": true,
-            "channels": true,
-            "ckeditor": true,
-            "modeltranslation": true,
-            "parler": true,
-            "project_name": "havasbooks",
-            "settings_module": "config.settings.local",
-            "runner": "wsgi",
-            "script": "entrypoint.sh",
-            "key": "key",
-            "port": "8044",
-            "phone": "998888112309",
-            "password": "2309",
-            "max_line_length": "120",
-            "project_slug": "havasbooks"
-        }
-    },
-    "directory": null
+  "template": "https://github.com/JscorpTech/django",
+  "commit": "521950e4c5072fa8d45b135a2abf89930ea63c63",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "havasbooks",
+      "project_slug": "havasbooks",
+      "settings_module": "config.settings.local",
+      "runner": "wsgi",
+      "celery": "no",
+      "cache": "no",
+      "script": "entrypoint.sh",
+      "key": "key",
+      "port": "8044",
+      "phone": "998888112309",
+      "password": "2309",
+      "max_line_length": "120",
+      "silk": true,
+      "storage": true,
+      "channels": true,
+      "rosetta": true,
+      "cacheops": true,
+      "ckeditor": true,
+      "modeltranslation": true,
+      "parler": true,
+      "version": "0.1.1",
+      "_template": "https://github.com/JscorpTech/django",
+      "_commit": "521950e4c5072fa8d45b135a2abf89930ea63c63"
+    }
+  },
+  "directory": null
 }
