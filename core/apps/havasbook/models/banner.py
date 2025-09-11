@@ -5,6 +5,7 @@ from django_core.models import AbstractBaseModel
 
 class BannerModel(AbstractBaseModel):
     image = models.ImageField(_("Изображение"), upload_to="banner-image/")    
+    link = models.URLField(verbose_name=_("Link"), blank=True, null=True)
     
     @classmethod
     def _create_fake(self):
