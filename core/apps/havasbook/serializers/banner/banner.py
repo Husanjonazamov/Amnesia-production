@@ -8,7 +8,7 @@ class BaseBannerSerializer(serializers.ModelSerializer):
         model = BannerModel
         fields = [
             'id',
-            'image'
+            'image',
             'link'
         ]
 
