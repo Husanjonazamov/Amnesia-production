@@ -48,11 +48,11 @@ def get_filtered_brands(request, view):
     })
 
 
-
 def get_filtered_data(request, view):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
     subcategory_param = request.query_params.get("subcategory")
+    childcategory_param = request.query_params.get("childcategory")
     brand_param = request.query_params.get("brand")
 
     min_price = request.query_params.get("min_price")
@@ -60,32 +60,39 @@ def get_filtered_data(request, view):
 
     category_ids = parse_id_list(category_param)
     subcategory_ids = parse_id_list(subcategory_param)
+    childcategory_ids = parse_id_list(childcategory_param)
     brand_ids = parse_id_list(brand_param)
 
-    # 1️⃣ BRAND YUBORILGAN HOLAT
-    if brand_ids:
-        products = BookModel.objects.filter(
-            brand_id__in=brand_ids
-        ).filter(
-            Q(gender__gender=gender) | Q(gender__gender="unisex")
-        )
+    # 🔹 1) BRAND + CHILDCATEGORY YUBORILGAN HOLAT
+    if brand_ids or childcategory_ids:
+        products = BookModel.objects.all()
+
+        if brand_ids:
+            products = products.filter(brand_id__in=brand_ids)
+
+        if childcategory_ids:
+            products = products.filter(childcategories__id__in=childcategory_ids)
+
+        if gender:
+            products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
 
         if min_price:
             products = products.filter(price__gte=min_price)
         if max_price:
             products = products.filter(price__lte=max_price)
 
+        products = products.distinct()
         page = view.paginate_queryset(products)
         serializer = ListBookSerializer(page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
             "type": "products",
             "results": serializer.data
         })
 
-    # 2️⃣ SUBCATEGORY YUBORILGAN HOLAT
+    # 🔹 2) SUBCATEGORY YUBORILGAN HOLAT
     elif subcategory_ids:
-        # Faqat shu subcategory ichida product mavjud bo‘lgan brandlar
         brands = BrandModel.objects.filter(
             products__subcategory_id__in=subcategory_ids
         ).distinct()
@@ -99,14 +106,13 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 3️⃣ CATEGORY YUBORILGAN HOLAT
+    # 🔹 3) CATEGORY YUBORILGAN HOLAT
     elif category_ids:
         subcategories = SubcategoryModel.objects.filter(
             category_id__in=category_ids,
             category__gender__gender__in=[gender, "unisex"]
         ).distinct()
 
-        # Faqat product mavjud bo‘lgan brandlar
         brands = BrandModel.objects.filter(
             products__subcategory__category_id__in=category_ids
         ).distinct()
@@ -123,7 +129,7 @@ def get_filtered_data(request, view):
             "brands": brand_serializer.data
         })
 
-    # 4️⃣ FAQAT GENDER YUBORILGAN HOLAT
+    # 🔹 4) FAQAT GENDER YUBORILGAN HOLAT
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
@@ -138,8 +144,8 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 5️⃣ PARAMETRLAR YO‘Q BO‘LSA
+    # 🔹 5) HECH NIMA YUBORILMAGAN HOLAT
     return Response({
         "status": False,
-        "message": "Kamida gender, category, subcategory yoki brand ID yuborilishi kerak."
+        "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."
     }, status=400)

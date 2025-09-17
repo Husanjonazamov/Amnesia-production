@@ -3,6 +3,7 @@ from .book import *  # noqa
 from .brand import *  # noqa
 from .cart import *  # noqa
 from .category import *  # noqa
+from .childcategory import *  # noqa
 from .delivery import *  # noqa
 from .gender import *  # noqa
 from .location import *  # noqa

@@ -1,6 +1,7 @@
 from .banner import *  # noqa
 from .book import *  # noqa
 from .brand import *  # noqa
+from .childcategory import *  # noqa
 from .delivery import *  # noqa
 from .gender import *  # noqa
 from .order import *  # noqa

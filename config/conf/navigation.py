@@ -73,6 +73,15 @@ PAGES = [
                 ),
             },
             {
+                "title": _("Дочерние категории"),
+                "icon": "category",  # yoki "layers"
+                "link": reverse_lazy("admin:havasbook_childcategorymodel_changelist"),
+                "permission": lambda request: user_has_group_or_permission(
+                    request.user, "view_user"
+                ),
+            },
+
+            {
                 "title": _("Подкатегории"),
                 "icon": "subdirectory_arrow_right",
                 "link": reverse_lazy("admin:havasbook_subcategorymodel_changelist"),

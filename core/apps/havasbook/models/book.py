@@ -51,6 +51,13 @@ class BookModel(AbstractBaseModel):
         blank=True,
         null=True
     )
+    
+    childcategories = models.ManyToManyField(
+        "havasbook.ChildcategoryModel",
+        verbose_name=_("Дочерние категории"),
+        blank=True,
+        related_name="products"
+    )
     color = models.ManyToManyField(
         "havasbook.ColorModel",
         verbose_name=_("Цвет товара"),

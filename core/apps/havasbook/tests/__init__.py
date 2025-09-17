@@ -1,4 +1,5 @@
 from .test_brand import *  # noqa
+from .test_childcategory import *  # noqa
 from .test_gender import *  # noqa
 from .test_order import *  # noqa
 from .test_organization import *  # noqa
