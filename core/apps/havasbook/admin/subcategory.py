@@ -3,10 +3,11 @@ from unfold.admin import ModelAdmin
 
 from core.apps.havasbook.models import SubcategoryModel
 from django.db import models
+from modeltranslation.admin import TabbedTranslationAdmin
 
 
 @admin.register(SubcategoryModel)
-class SubcategoryAdmin(ModelAdmin):
+class SubcategoryAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_display = (
         "id",
         "__str__",
