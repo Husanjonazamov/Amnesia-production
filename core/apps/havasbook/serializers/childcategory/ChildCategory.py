@@ -8,7 +8,8 @@ class BaseChildcategorySerializer(serializers.ModelSerializer):
         model = ChildcategoryModel
         fields = [
             "id",
-            "name",
+            "title",
+            "subcategory",
         ]
 
 
@@ -24,5 +25,6 @@ class CreateChildcategorySerializer(BaseChildcategorySerializer):
     class Meta(BaseChildcategorySerializer.Meta):
         fields = [
             "id",
-            "name",
+            "title",
+            "subcategory",
         ]

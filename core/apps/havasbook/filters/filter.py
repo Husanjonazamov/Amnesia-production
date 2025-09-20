@@ -46,8 +46,8 @@ def get_filtered_brands(request, view):
         "status": True,
         "results": serializer.data
     })
-
-
+    
+    
 def get_filtered_data(request, view):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
@@ -63,15 +63,18 @@ def get_filtered_data(request, view):
     childcategory_ids = parse_id_list(childcategory_param)
     brand_ids = parse_id_list(brand_param)
 
-    # 🔹 1) BRAND + CHILDCATEGORY YUBORILGAN HOLAT
-    if brand_ids or childcategory_ids:
-        products = BookModel.objects.all()
-
-        if brand_ids:
-            products = products.filter(brand_id__in=brand_ids)
+    # 🔹 1) BRAND YUBORILGAN HOLAT → PRODUCT
+    if brand_ids:
+        products = BookModel.objects.filter(brand_id__in=brand_ids)
 
         if childcategory_ids:
             products = products.filter(childcategories__id__in=childcategory_ids)
+
+        if subcategory_ids:
+            products = products.filter(subcategory_id__in=subcategory_ids)
+
+        if category_ids:
+            products = products.filter(subcategory__category_id__in=category_ids)
 
         if gender:
             products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
@@ -91,10 +94,10 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 🔹 2) SUBCATEGORY YUBORILGAN HOLAT
-    elif subcategory_ids:
+    # 🔹 2) CHILDCATEGORY YUBORILGAN HOLAT → BRANDS
+    elif childcategory_ids:
         brands = BrandModel.objects.filter(
-            products__subcategory_id__in=subcategory_ids
+            products__childcategories__id__in=childcategory_ids
         ).distinct()
 
         page = view.paginate_queryset(brands)
@@ -106,7 +109,24 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 🔹 3) CATEGORY YUBORILGAN HOLAT
+    # 🔹 3) SUBCATEGORY YUBORILGAN HOLAT → CHILDCATEGORIES
+    elif subcategory_ids:
+        from core.apps.havasbook.models.childcategory import ChildcategoryModel
+        childcategories = ChildcategoryModel.objects.filter(
+            subcategory_id__in=subcategory_ids
+        ).distinct()
+
+        child_page = view.paginate_queryset(childcategories)
+        from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
+        child_serializer = BaseChildcategorySerializer(child_page, many=True, context={"request": request})
+
+        return view.get_paginated_response({
+            "status": True,
+            "type": "childcategories",
+            "results": child_serializer.data
+        })
+
+    # 🔹 4) CATEGORY YUBORILGAN HOLAT → SUBCATEGORIES + BRANDS
     elif category_ids:
         subcategories = SubcategoryModel.objects.filter(
             category_id__in=category_ids,
@@ -129,7 +149,7 @@ def get_filtered_data(request, view):
             "brands": brand_serializer.data
         })
 
-    # 🔹 4) FAQAT GENDER YUBORILGAN HOLAT
+    # 🔹 5) FAQAT GENDER YUBORILGAN HOLAT → CATEGORIES
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
@@ -144,7 +164,7 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 🔹 5) HECH NIMA YUBORILMAGAN HOLAT
+    # 🔹 6) HECH NIMA YUBORILMAGAN HOLAT
     return Response({
         "status": False,
         "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."

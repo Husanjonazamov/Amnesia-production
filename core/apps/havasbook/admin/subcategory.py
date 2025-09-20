@@ -6,6 +6,7 @@ from django.db import models
 from modeltranslation.admin import TabbedTranslationAdmin
 
 
+
 @admin.register(SubcategoryModel)
 class SubcategoryAdmin(ModelAdmin, TabbedTranslationAdmin):
     list_display = (
