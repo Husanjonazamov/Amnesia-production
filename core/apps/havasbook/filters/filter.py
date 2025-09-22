@@ -16,7 +16,6 @@ def parse_id_list(param):
 
 
 
-
 def get_filtered_brands(request, view):
     gender = request.query_params.get("gender")
     brand_param = request.query_params.get("brand")
@@ -48,6 +47,8 @@ def get_filtered_brands(request, view):
     })
     
     
+    
+    
 def get_filtered_data(request, view):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
@@ -63,7 +64,7 @@ def get_filtered_data(request, view):
     childcategory_ids = parse_id_list(childcategory_param)
     brand_ids = parse_id_list(brand_param)
 
-    # 🔹 1) BRAND YUBORILGAN HOLAT → PRODUCT
+    # -------- Agar brand yuborilgan bo‘lsa → mahsulotlar --------
     if brand_ids:
         products = BookModel.objects.filter(brand_id__in=brand_ids)
 
@@ -94,7 +95,7 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 🔹 2) CHILDCATEGORY YUBORILGAN HOLAT → BRANDS
+    # -------- Agar childcategory yuborilgan bo‘lsa --------
     elif childcategory_ids:
         brands = BrandModel.objects.filter(
             products__childcategories__id__in=childcategory_ids
@@ -109,28 +110,34 @@ def get_filtered_data(request, view):
             "results": serializer.data
         })
 
-    # 🔹 3) SUBCATEGORY YUBORILGAN HOLAT → CHILDCATEGORIES
+    # -------- Agar subcategory yuborilgan bo‘lsa --------
     elif subcategory_ids:
         from core.apps.havasbook.models.childcategory import ChildcategoryModel
         childcategories = ChildcategoryModel.objects.filter(
             subcategory_id__in=subcategory_ids
         ).distinct()
 
+        brands = BrandModel.objects.filter(
+            products__subcategory_id__in=subcategory_ids
+        ).distinct()
+
         child_page = view.paginate_queryset(childcategories)
         from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
         child_serializer = BaseChildcategorySerializer(child_page, many=True, context={"request": request})
 
+        brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
-            "type": "childcategories",
-            "results": child_serializer.data
+            "type": "childcategories_and_brands",
+            "childcategories": child_serializer.data,
+            "brands": brand_serializer.data
         })
 
-    # 🔹 4) CATEGORY YUBORILGAN HOLAT → SUBCATEGORIES + BRANDS
+    # -------- Agar category yuborilgan bo‘lsa --------
     elif category_ids:
         subcategories = SubcategoryModel.objects.filter(
-            category_id__in=category_ids,
-            category__gender__gender__in=[gender, "unisex"]
+            category_id__in=category_ids
         ).distinct()
 
         brands = BrandModel.objects.filter(
@@ -149,22 +156,27 @@ def get_filtered_data(request, view):
             "brands": brand_serializer.data
         })
 
-    # 🔹 5) FAQAT GENDER YUBORILGAN HOLAT → CATEGORIES
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
         ).distinct()
 
-        page = view.paginate_queryset(categories)
-        serializer = BaseCategorySerializer(page, many=True, context={"request": request})
+        brands = BrandModel.objects.filter(
+            products__subcategory__category__gender__gender__in=[gender, "unisex"]
+        ).distinct()
+
+        cat_page = view.paginate_queryset(categories)
+        serializer = BaseCategorySerializer(cat_page, many=True, context={"request": request})
+
+        brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
         return view.get_paginated_response({
             "status": True,
-            "type": "categories",
-            "results": serializer.data
+            "type": "categories_and_brands",
+            "categories": serializer.data,
+            "brands": brand_serializer.data
         })
 
-    # 🔹 6) HECH NIMA YUBORILMAGAN HOLAT
     return Response({
         "status": False,
         "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."
