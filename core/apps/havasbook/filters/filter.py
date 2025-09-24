@@ -141,14 +141,17 @@ def get_filtered_data(request, view):
         product_page = view.paginate_queryset(products)
         product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
 
-        return view.get_paginated_response({
+        page = view.paginate_queryset(products)
+        serializer = ListBookSerializer(page, many=True, context={"request": request})
+
+        paginated_response = view.get_paginated_response(serializer.data)
+
+        paginated_response.data.update({
             "status": True,
-            "type": "subcategories_brands_products",
-            "childcategories": child_serializer.data,
-            "brands": brand_serializer.data,
-            "products": product_serializer.data
+            "type": "products"
         })
 
+        return paginated_response
     # -------- Agar category yuborilgan bo‘lsa --------
     elif category_ids:
         subcategories = SubcategoryModel.objects.filter(
