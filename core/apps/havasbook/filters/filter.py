@@ -48,7 +48,6 @@ def get_filtered_brands(request, view):
     
     
     
-    
 def get_filtered_data(request, view):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
@@ -101,13 +100,21 @@ def get_filtered_data(request, view):
             products__childcategories__id__in=childcategory_ids
         ).distinct()
 
-        page = view.paginate_queryset(brands)
-        serializer = BaseBrandSerializer(page, many=True, context={"request": request})
+        products = BookModel.objects.filter(
+            childcategories__id__in=childcategory_ids
+        ).distinct()
+
+        product_page = view.paginate_queryset(products)
+        product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
+
+        brand_page = view.paginate_queryset(brands)
+        brand_serializer = BaseBrandSerializer(brand_page, many=True, context={"request": request})
 
         return view.get_paginated_response({
             "status": True,
-            "type": "brands",
-            "results": serializer.data
+            "type": "childcategories_brands_products",
+            "products": product_serializer.data,
+            "brands": brand_serializer.data
         })
 
     # -------- Agar subcategory yuborilgan bo‘lsa --------
@@ -121,17 +128,25 @@ def get_filtered_data(request, view):
             products__subcategory_id__in=subcategory_ids
         ).distinct()
 
+        products = BookModel.objects.filter(
+            subcategory_id__in=subcategory_ids
+        ).distinct()
+
         child_page = view.paginate_queryset(childcategories)
         from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
         child_serializer = BaseChildcategorySerializer(child_page, many=True, context={"request": request})
 
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
+        product_page = view.paginate_queryset(products)
+        product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
-            "type": "childcategories_and_brands",
+            "type": "subcategories_brands_products",
             "childcategories": child_serializer.data,
-            "brands": brand_serializer.data
+            "brands": brand_serializer.data,
+            "products": product_serializer.data
         })
 
     # -------- Agar category yuborilgan bo‘lsa --------
@@ -144,18 +159,27 @@ def get_filtered_data(request, view):
             products__subcategory__category_id__in=category_ids
         ).distinct()
 
+        products = BookModel.objects.filter(
+            subcategory__category_id__in=category_ids
+        ).distinct()
+
         sub_page = view.paginate_queryset(subcategories)
         sub_serializer = BaseSubcategorySerializer(sub_page, many=True, context={"request": request})
 
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
+        product_page = view.paginate_queryset(products)
+        product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
-            "type": "subcategories_and_brands",
+            "type": "categories_subcategories_brands_products",
             "subcategories": sub_serializer.data,
-            "brands": brand_serializer.data
+            "brands": brand_serializer.data,
+            "products": product_serializer.data
         })
 
+    # -------- Agar gender yuborilgan bo‘lsa --------
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
@@ -165,16 +189,24 @@ def get_filtered_data(request, view):
             products__subcategory__category__gender__gender__in=[gender, "unisex"]
         ).distinct()
 
+        products = BookModel.objects.filter(
+            Q(gender__gender=gender) | Q(gender__gender="unisex")
+        ).distinct()
+
         cat_page = view.paginate_queryset(categories)
-        serializer = BaseCategorySerializer(cat_page, many=True, context={"request": request})
+        cat_serializer = BaseCategorySerializer(cat_page, many=True, context={"request": request})
 
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
+        product_page = view.paginate_queryset(products)
+        product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
+
         return view.get_paginated_response({
             "status": True,
-            "type": "categories_and_brands",
-            "categories": serializer.data,
-            "brands": brand_serializer.data
+            "type": "categories_brands_products",
+            "categories": cat_serializer.data,
+            "brands": brand_serializer.data,
+            "products": product_serializer.data
         })
 
     return Response({
