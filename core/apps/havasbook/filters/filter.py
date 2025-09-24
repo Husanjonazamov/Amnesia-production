@@ -215,4 +215,4 @@ def get_filtered_data(request, view):
         "status": False,
         "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."
     }, status=400)
--
+
