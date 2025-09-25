@@ -85,7 +85,8 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="category", permission_classes=[AllowAny])
     def filter_by_category(self, request):
-        return get_filtered_data(request, self)
+        paginator = CustomPagination()
+        return get_filtered_data(request, paginator)
 
     
     
