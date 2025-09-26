@@ -46,9 +46,10 @@ def get_filtered_brands(request, view):
         "results": serializer.data
     })
     
-    
-    
-def get_filtered_data(request,  paginator, view=None):
+
+
+
+def get_filtered_data(request, paginator, view=None):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
     subcategory_param = request.query_params.get("subcategory")
@@ -85,9 +86,12 @@ def get_filtered_data(request,  paginator, view=None):
             products = products.filter(price__lte=max_price)
 
         products = products.distinct()
+
+        # ✅ faqat products paginate qilinadi
         page = paginator.paginate_queryset(products, request, view=view)
         serializer = ListBookSerializer(page, many=True, context={"request": request})
 
+        # qaytishda DRF avtomatik total_items, total_pages, links beradi
         return paginator.get_paginated_response({
             "status": True,
             "type": "products",
@@ -106,9 +110,7 @@ def get_filtered_data(request,  paginator, view=None):
 
         page_product = paginator.paginate_queryset(products, request, view=view)
         product_serializer = ListBookSerializer(page_product, many=True, context={"request": request})
-
-        brand_page = paginator.paginate_queryset(brands, request, view=view)
-        brand_serializer = BaseBrandSerializer(brand_page, many=True, context={"request": request})
+        brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
         return paginator.get_paginated_response({
             "status": True,
@@ -132,10 +134,7 @@ def get_filtered_data(request,  paginator, view=None):
             subcategory_id__in=subcategory_ids
         ).distinct()
 
-        child_page = paginator.paginate_queryset(childcategories, request, view=None)
-        from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
-        child_serializer = BaseChildcategorySerializer(child_page, many=True, context={"request": request})
-
+        child_serializer = BaseChildcategorySerializer(childcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
         product_page = paginator.paginate_queryset(products, request, view=None)
@@ -163,9 +162,7 @@ def get_filtered_data(request,  paginator, view=None):
             subcategory__category_id__in=category_ids
         ).distinct()
 
-        sub_page = paginator.paginate_queryset(subcategories, request, view=None)
-        sub_serializer = BaseSubcategorySerializer(sub_page, many=True, context={"request": request})
-
+        sub_serializer = BaseSubcategorySerializer(subcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
         product_page = paginator.paginate_queryset(products, request, view=None)
@@ -193,9 +190,7 @@ def get_filtered_data(request,  paginator, view=None):
             Q(gender__gender=gender) | Q(gender__gender="unisex")
         ).distinct()
 
-        cat_page = paginator.paginate_queryset(categories, request, view=None)
-        cat_serializer = BaseCategorySerializer(cat_page, many=True, context={"request": request})
-
+        cat_serializer = BaseCategorySerializer(categories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
         product_page = paginator.paginate_queryset(products, request, view=None)
