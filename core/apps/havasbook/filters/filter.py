@@ -1,7 +1,7 @@
 from django.db.models import Q
 from core.apps.havasbook.models import BookModel, BrandModel, CategoryModel, SubcategoryModel
 from core.apps.havasbook.serializers import (
-    BaseBrandSerializer, BaseCategorySerializer, BaseSubcategorySerializer, ListBookSerializer
+    BaseBrandSerializer, BaseCategorySerializer, BaseSubcategorySerializer, ListBookSerializer, BaseChildcategorySerializer
 )
 from rest_framework.response import Response
 import re
