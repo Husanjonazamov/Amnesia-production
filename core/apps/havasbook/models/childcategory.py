@@ -9,7 +9,7 @@ class ChildcategoryModel(AbstractBaseModel):
 
 
     def __str__(self):
-        return str(self.title)
+        return f"{self.title}-{self.subcategory.category.gender.gender}"
 
     @classmethod
     def _create_fake(self):
