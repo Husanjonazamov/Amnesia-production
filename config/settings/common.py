@@ -182,15 +182,6 @@ CELERY_BROKER_URL = env("REDIS_URL")
 CELERY_RESULT_BACKEND = env("REDIS_URL")
 
 
-from celery.schedules import crontab
-
-CELERY_BEAT_SCHEDULE = {
-    "send-cart-reminders-every-day": {
-        "task": "core.apps.havasbook.task.send_cart_reminders",
-        "schedule": crontab(hour=16, minute=15),  
-    },
-}
-
 CELERY_TIMEZONE = 'Asia/Tashkent'
 CELERY_ENABLE_UTC = True
 

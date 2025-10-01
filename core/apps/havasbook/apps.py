@@ -6,4 +6,4 @@ class ModuleConfig(AppConfig):
     name = "core.apps.havasbook"
 
     def ready(self):
-        import core.apps.havasbook.signals
+        import core.apps.havasbook.signals.tasks

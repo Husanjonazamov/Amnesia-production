@@ -11,20 +11,17 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessag
 logger = logging.getLogger(__name__)
 
 
+
+
 @shared_task
 def send_cart_reminders():
-    
-    logger.info("=== Celery task send_cart_reminders ishga tushdi ===")
-    
     carts = CartModel.objects.prefetch_related('cart_items__book').all()
-    
     for cart in carts:
         user = cart.user
         tg_id = user.user_id
         items = cart.cart_items.all()
         
         if not items.exists():
-            logger.info(f"Foydalanuvchi {user.first_name} savati bo'sh, o'tkazildi")
             continue
         
         product_lines = "\n".join([f"• {item.book.name} x {item.quantity}" for item in items])
@@ -36,11 +33,6 @@ def send_cart_reminders():
         
         try:
             response = requests.get(TELEGRAM_API_URL, params={"chat_id": tg_id, "text": message_text})
-            if response.status_code == 200:
-                logger.info(f"Foydalanuvchi {user.first_name} (TG ID: {tg_id}) ga habar yuborildi")
-            else:
-                logger.warning(f"Habar yuborilmadi {user.first_name} (TG ID: {tg_id}), status_code: {response.status_code}")
         except Exception as e:
             logger.error(f"Habar yuborishda xato {user.first_name} (TG ID: {tg_id}): {str(e)}")
     
-    logger.info("=== Celery task send_cart_reminders tugadi ===")
