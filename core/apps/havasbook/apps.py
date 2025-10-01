@@ -6,5 +6,4 @@ class ModuleConfig(AppConfig):
     name = "core.apps.havasbook"
 
     def ready(self):
-        print("==== Havasbook signals loaded ====")
-        import core.apps.havasbook.signals.brand
+        import core.apps.havasbook.signals

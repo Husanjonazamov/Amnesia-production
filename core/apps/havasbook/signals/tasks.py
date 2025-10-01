@@ -1,30 +1,46 @@
-# from celery import shared_task
-# from core.apps.havasbook.models import CartModel
-# from config.env import env
-# import requests
+from celery import shared_task
+import requests
+import logging
+from config.env import env
+
+from core.apps.havasbook.models import CartModel
+
+TELEGRAM_BOT_TOKEN = env.str("BOT_TOKEN")
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+
+logger = logging.getLogger(__name__)
 
 
-# BOT_TOKEN = env("BOT_TOKEN")
-
-
-# def send_message(chat_id, text):
-#     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-#     try:
-#         requests.post(url, data={"chat_id": chat_id, "text": text})
-#     except Exception as e:
-#         print(f"Xabar yuborishda xato: {e}")
+@shared_task
+def send_cart_reminders():
+    
+    logger.info("=== Celery task send_cart_reminders ishga tushdi ===")
+    
+    carts = CartModel.objects.prefetch_related('cart_items__book').all()
+    
+    for cart in carts:
+        user = cart.user
+        tg_id = user.user_id
+        items = cart.cart_items.all()
         
-
-# @shared_task
-# def send_cart_reminder_task(cart_id):
-#     try:
-#         cart = CartModel.objects.get(id=cart_id)
-#         chat_id = cart.user.tg_id
-#         product_name = cart.product.name
-#         send_message(
-#             chat_id, 
-#             f"Здравствуйте! 🛒 Товар «{product_name}» всё ещё ждёт вас в вашей корзине. Не пропустите возможность оформить заказ!"
-#         )
-
-#     except CartModel.DoesNotExist:
-#         pass
+        if not items.exists():
+            logger.info(f"Foydalanuvchi {user.first_name} savati bo'sh, o'tkazildi")
+            continue
+        
+        product_lines = "\n".join([f"• {item.book.name} x {item.quantity}" for item in items])
+        message_text = (
+            f"🛒 Ваши товары ждут вас в корзине!\n\n"
+            f"{product_lines}\n\n"
+            "Не упустите возможность оформить заказ! 😉"
+        )
+        
+        try:
+            response = requests.get(TELEGRAM_API_URL, params={"chat_id": tg_id, "text": message_text})
+            if response.status_code == 200:
+                logger.info(f"Foydalanuvchi {user.first_name} (TG ID: {tg_id}) ga habar yuborildi")
+            else:
+                logger.warning(f"Habar yuborilmadi {user.first_name} (TG ID: {tg_id}), status_code: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Habar yuborishda xato {user.first_name} (TG ID: {tg_id}): {str(e)}")
+    
+    logger.info("=== Celery task send_cart_reminders tugadi ===")

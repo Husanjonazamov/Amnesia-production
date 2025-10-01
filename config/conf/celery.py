@@ -1,7 +1,8 @@
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
-    # "test": {
-    #     "task": "core.apps.home.tasks.demo.add",
-    #     "schedule": 5.0,
-    #     "args": (1, 2)
-    # },
+    "send-cart-reminders-every-day": {
+        "task": "core.apps.cart.tasks.send_cart_reminders",
+        "schedule": crontab(hour=12, minute=0), 
+    },
 }
