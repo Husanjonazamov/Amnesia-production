@@ -50,7 +50,6 @@ def get_filtered_brands(request, view):
 
 
 
-
 def get_filtered_data(request, paginator, view=None):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
@@ -87,10 +86,11 @@ def get_filtered_data(request, paginator, view=None):
         if max_price:
             products = products.filter(price__lte=max_price)
 
-        products = products.distinct().order_by("id")
+        products = products.distinct()
 
         page = paginator.paginate_queryset(products, request, view=view)
         serializer = ListBookSerializer(page, many=True, context={"request": request})
+
         return paginator.get_paginated_response({
             "status": True,
             "type": "products",
@@ -99,73 +99,59 @@ def get_filtered_data(request, paginator, view=None):
 
     # -------- Agar childcategory yuborilgan bo‘lsa --------
     elif childcategory_ids:
+        # ✅ Endi childcategory faqat producti mavjud bo'lsa keladi
         brands = BrandModel.objects.filter(
             products__childcategories__id__in=childcategory_ids
-        ).distinct().order_by("id")
+        ).distinct()
 
         products = BookModel.objects.filter(
             childcategories__id__in=childcategory_ids
-        )
+        ).distinct()
 
-        if subcategory_ids:
-            products = products.filter(subcategory_id__in=subcategory_ids)
-
-        if category_ids:
-            products = products.filter(subcategory__category_id__in=category_ids)
-
-        if gender:
-            products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
-
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
-
-        products = products.distinct().order_by("id")
+        # ✅ Childcategory faqat product mavjud bo'lsa chiqadi
+        from core.apps.havasbook.models.childcategory import ChildcategoryModel
+        childcategories = ChildcategoryModel.objects.filter(
+            id__in=childcategory_ids,
+            products__isnull=False
+        ).distinct()
 
         page_product = paginator.paginate_queryset(products, request, view=view)
         product_serializer = ListBookSerializer(page_product, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
+        from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
+        child_serializer = BaseChildcategorySerializer(childcategories, many=True, context={"request": request})
+
         return paginator.get_paginated_response({
             "status": True,
             "type": "childcategories_brands_products",
-            "products": product_serializer.data,
-            "brands": brand_serializer.data
+            "childcategories": child_serializer.data,
+            "brands": brand_serializer.data,
+            "products": product_serializer.data
         })
 
     # -------- Agar subcategory yuborilgan bo‘lsa --------
     elif subcategory_ids:
+        from core.apps.havasbook.serializers.childcategory import BaseChildcategorySerializer
         from core.apps.havasbook.models.childcategory import ChildcategoryModel
+        # ✅ faqat producti bor childcategorylar chiqadi
         childcategories = ChildcategoryModel.objects.filter(
-            subcategory_id__in=subcategory_ids
-        ).distinct().order_by("id")
+            subcategory_id__in=subcategory_ids,
+            products__isnull=False
+        ).distinct()
 
         brands = BrandModel.objects.filter(
             products__subcategory_id__in=subcategory_ids
-        ).distinct().order_by("id")
+        ).distinct()
 
         products = BookModel.objects.filter(
             subcategory_id__in=subcategory_ids
-        )
-
-        if category_ids:
-            products = products.filter(subcategory__category_id__in=category_ids)
-
-        if gender:
-            products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
-
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
-
-        products = products.distinct().order_by("id")
+        ).distinct()
 
         child_serializer = BaseChildcategorySerializer(childcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
-        product_page = paginator.paginate_queryset(products, request, view=view)
+        product_page = paginator.paginate_queryset(products, request, view=None)
         product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
 
         return paginator.get_paginated_response({
@@ -180,30 +166,20 @@ def get_filtered_data(request, paginator, view=None):
     elif category_ids:
         subcategories = SubcategoryModel.objects.filter(
             category_id__in=category_ids
-        ).distinct().order_by("id")
+        ).distinct()
 
         brands = BrandModel.objects.filter(
             products__subcategory__category_id__in=category_ids
-        ).distinct().order_by("id")
+        ).distinct()
 
         products = BookModel.objects.filter(
             subcategory__category_id__in=category_ids
-        )
-
-        if gender:
-            products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
-
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
-
-        products = products.distinct().order_by("id")
+        ).distinct()
 
         sub_serializer = BaseSubcategorySerializer(subcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
-        product_page = paginator.paginate_queryset(products, request, view=view)
+        product_page = paginator.paginate_queryset(products, request, view=None)
         product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
 
         return paginator.get_paginated_response({
@@ -218,27 +194,20 @@ def get_filtered_data(request, paginator, view=None):
     elif gender:
         categories = CategoryModel.objects.filter(
             gender__gender__in=[gender, "unisex"]
-        ).distinct().order_by("id")
+        ).distinct()
 
         brands = BrandModel.objects.filter(
             products__subcategory__category__gender__gender__in=[gender, "unisex"]
-        ).distinct().order_by("id")
+        ).distinct()
 
         products = BookModel.objects.filter(
             Q(gender__gender=gender) | Q(gender__gender="unisex")
-        )
-
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
-
-        products = products.distinct().order_by("id")
+        ).distinct()
 
         cat_serializer = BaseCategorySerializer(categories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
 
-        product_page = paginator.paginate_queryset(products, request, view=view)
+        product_page = paginator.paginate_queryset(products, request, view=None)
         product_serializer = ListBookSerializer(product_page, many=True, context={"request": request})
 
         return paginator.get_paginated_response({
@@ -253,4 +222,3 @@ def get_filtered_data(request, paginator, view=None):
         "status": False,
         "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."
     }, status=400)
-
