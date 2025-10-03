@@ -46,9 +46,6 @@ def get_filtered_brands(request, view):
         "results": serializer.data
     })
     
-
-
-
 def get_filtered_data(request, paginator, view=None):
     gender = request.query_params.get("gender")
     category_param = request.query_params.get("category")
@@ -70,28 +67,22 @@ def get_filtered_data(request, paginator, view=None):
 
         if childcategory_ids:
             products = products.filter(childcategories__id__in=childcategory_ids)
-
         if subcategory_ids:
             products = products.filter(subcategory_id__in=subcategory_ids)
-
         if category_ids:
             products = products.filter(subcategory__category_id__in=category_ids)
-
         if gender:
             products = products.filter(Q(gender__gender=gender) | Q(gender__gender="unisex"))
-
         if min_price:
             products = products.filter(price__gte=min_price)
         if max_price:
             products = products.filter(price__lte=max_price)
 
-        products = products.distinct()
+        # ✅ DISTINCT + ORDER_BY -> dublikatlarni to‘g‘ri olib tashlaydi
+        products = products.distinct().order_by("id")
 
-        # ✅ faqat products paginate qilinadi
         page = paginator.paginate_queryset(products, request, view=view)
         serializer = ListBookSerializer(page, many=True, context={"request": request})
-
-        # qaytishda DRF avtomatik total_items, total_pages, links beradi
         return paginator.get_paginated_response({
             "status": True,
             "type": "products",
@@ -106,7 +97,7 @@ def get_filtered_data(request, paginator, view=None):
 
         products = BookModel.objects.filter(
             childcategories__id__in=childcategory_ids
-        ).distinct()
+        ).distinct().order_by("id")  # ✅
 
         page_product = paginator.paginate_queryset(products, request, view=view)
         product_serializer = ListBookSerializer(page_product, many=True, context={"request": request})
@@ -132,7 +123,7 @@ def get_filtered_data(request, paginator, view=None):
 
         products = BookModel.objects.filter(
             subcategory_id__in=subcategory_ids
-        ).distinct()
+        ).distinct().order_by("id")  # ✅
 
         child_serializer = BaseChildcategorySerializer(childcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
@@ -160,7 +151,7 @@ def get_filtered_data(request, paginator, view=None):
 
         products = BookModel.objects.filter(
             subcategory__category_id__in=category_ids
-        ).distinct()
+        ).distinct().order_by("id")  # ✅
 
         sub_serializer = BaseSubcategorySerializer(subcategories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
@@ -188,7 +179,7 @@ def get_filtered_data(request, paginator, view=None):
 
         products = BookModel.objects.filter(
             Q(gender__gender=gender) | Q(gender__gender="unisex")
-        ).distinct()
+        ).distinct().order_by("id")  # ✅
 
         cat_serializer = BaseCategorySerializer(categories, many=True, context={"request": request})
         brand_serializer = BaseBrandSerializer(brands, many=True, context={"request": request})
@@ -208,3 +199,4 @@ def get_filtered_data(request, paginator, view=None):
         "status": False,
         "message": "Kamida gender, category, subcategory, childcategory yoki brand ID yuborilishi kerak."
     }, status=400)
+z
