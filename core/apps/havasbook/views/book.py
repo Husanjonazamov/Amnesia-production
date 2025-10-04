@@ -31,15 +31,20 @@ from core.apps.havasbook.filters.filter import (
 
 
 
+
+
 class BooksSearchView(ModelViewSet):
     serializer_class = ListBookSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        queryset = BookModel.objects.all()
-        q = self.request.query_params.get('search', None)
-
+        queryset = (
+            BookModel.objects
+            .select_related("gender", "brand", "category", "subcategory")
+            .prefetch_related("childcategories", "color", "size", "images")
+        )
+        q = self.request.query_params.get("search", None)
         if q:
             queryset = queryset.filter(
                 Q(name__icontains=q) | Q(description__icontains=q) 
@@ -51,7 +56,11 @@ class BooksSearchView(ModelViewSet):
 
 @extend_schema(tags=["book"])
 class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = BookModel.objects.all()
+    queryset = (
+        BookModel.objects
+        .select_related("gender", "brand", "category", "subcategory")  
+        .prefetch_related("childcategories", "color", "size", "images")  
+    )
     serializer_class = ListBookSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination
@@ -92,7 +101,7 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
     
 @extend_schema(tags=["bookImage"])
 class BookimageView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = BookimageModel.objects.all()
+    queryset = BookimageModel.objects.select_related("book")
     serializer_class = ListBookimageSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination

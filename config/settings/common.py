@@ -62,16 +62,19 @@ for module_path in MODULES:
     INSTALLED_APPS.append("{}.apps.ModuleConfig".format(module_path))
 
 MIDDLEWARE = [
+    "django.middleware.cache.UpdateCacheMiddleware",  
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # Cors middleware
-    "django.middleware.locale.LocaleMiddleware",  # Locale middleware
+    "corsheaders.middleware.CorsMiddleware",           
+    "django.middleware.locale.LocaleMiddleware",       
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
 ]
+
 if env.bool("SILK_ENEBLED", False):
     MIDDLEWARE += [
         "silk.middleware.SilkyMiddleware",
