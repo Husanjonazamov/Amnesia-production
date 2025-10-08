@@ -1,46 +1,50 @@
-# from celery import shared_task
-# import requests
-# import logging
-# from config.env import env
+import requests
+from celery import shared_task
+from config.env import env
+from django.contrib.auth import get_user_model
+from core.apps.havasbook.models.cart import CartModel
 
-# TELEGRAM_BOT_TOKEN = env.str("BOT_TOKEN")
-# TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-
-# logger = logging.getLogger(__name__)
-
+BOT_TOKEN = env.str("BOT_TOKEN")
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 
-# @shared_task
-# def send_cart_reminders():
-#     from core.apps.cart.models import CartModel
-    
-#     logger.info("=== Celery task send_cart_reminders ishga tushdi ===")
-    
-#     carts = CartModel.objects.prefetch_related('cart_items__book').all()
-    
-#     for cart in carts:
-#         user = cart.user
-#         tg_id = user.user_id
-#         items = cart.cart_items.all()
-        
-#         if not items.exists():
-#             logger.info(f"Foydalanuvchi {user.first_name} savati bo'sh, o'tkazildi")
-#             continue
-        
-#         product_lines = "\n".join([f"• {item.book.name} x {item.quantity}" for item in items])
-#         message_text = (
-#             f"🛒 Ваши товары ждут вас в корзине!\n\n"
-#             f"{product_lines}\n\n"
-#             "Не упустите возможность оформить заказ! 😉"
-#         )
-        
-#         try:
-#             response = requests.get(TELEGRAM_API_URL, params={"chat_id": tg_id, "text": message_text})
-#             if response.status_code == 200:
-#                 logger.info(f"Foydalanuvchi {user.first_name} (TG ID: {tg_id}) ga habar yuborildi")
-#             else:
-#                 logger.warning(f"Habar yuborilmadi {user.first_name} (TG ID: {tg_id}), status_code: {response.status_code}")
-#         except Exception as e:
-#             logger.error(f"Habar yuborishda xato {user.first_name} (TG ID: {tg_id}): {str(e)}")
-    
-#     logger.info("=== Celery task send_cart_reminders tugadi ===")
+
+
+@shared_task
+def send_cart_reminder(user_id):
+    try:
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        tg_id = user.user_id 
+
+        cart = CartModel.objects.prefetch_related('cart_items__book').filter(user=user).first()
+        if not cart:
+            return
+
+        items = cart.cart_items.all()
+        if not items.exists():
+            return
+
+        product_lines = "\n".join([f"• {item.book.name} x {item.quantity}" for item in items])
+        message_text = (
+            f"🛒 Ваши товары ждут вас в корзине!\n\n"
+            f"{product_lines}\n\n"
+            "Не упустите возможность оформить заказ! 😉"
+        )
+
+        response = requests.get(TELEGRAM_API_URL, params={"chat_id": tg_id, "text": message_text})
+        if response.status_code == 200:
+            print(f"✅ Telegram eslatma yuborildi: {user.username}")
+        else:
+            print(f"❌ Telegram xato ({response.status_code}): {user.username}")
+
+    except Exception as e:
+        print(f"Xatolik: {e}")
+
+
+@shared_task(name="core.apps.havasbook.tasks.send_cart_reminders_task")
+def send_cart_reminders_task():
+    carts = CartModel.objects.prefetch_related('cart_items__book').all()
+    for cart in carts:
+        if cart.cart_items.exists():
+            send_cart_reminder.delay(cart.user.id)
