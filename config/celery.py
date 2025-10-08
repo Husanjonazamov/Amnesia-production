@@ -19,6 +19,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "send-cart-reminders-everyday": {
         "task": "core.apps.havasbook.tasks.send_cart_reminders_task",
-        "schedule": crontab(hour=18, minute=4),  # 18:00 ga o'zgartirildi
+        "schedule": crontab(hour=20, minute=4),  # 18:00 ga o'zgartirildi
     },
 }
