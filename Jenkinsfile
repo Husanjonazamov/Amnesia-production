@@ -6,20 +6,20 @@ pipeline {
     }
 
     environment {
-        PROD_ENV     = "/opt/env/.env.havasbooks"
-        IMAGE_NAME   = "havasbooks"
+        PROD_ENV     = "/opt/env/.env.amnesia"
+        IMAGE_NAME   = "amnesia"
         TEST_TAG     = "test"
         PROD_TAG     = "latest"
-        CONTAINER_DB = "havasbooks_db_test"
-        CONTAINER_WEB = "havasbooks_web_test"
-        CONTAINER_REDIS = "havasbooks_redis_test"
-        STACK_NAME = "havasbooks"
+        CONTAINER_DB = "amnesia_db_test"
+        CONTAINER_WEB = "amnesia_web_test"
+        CONTAINER_REDIS = "amnesia_redis_test"
+        STACK_NAME = "amnesia"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', credentialsId: 'ssh', url: 'git@github.com:JscorpTech/havasbooks.git'
+                git branch: 'main', credentialsId: 'ssh', url: 'git@github.com:Husanjonazamov/Amnesia-production.gitt'
                 stash includes: 'stack.j2.yaml', name: "stack.j2.yaml"
             }
         }
