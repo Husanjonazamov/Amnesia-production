@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('* * * * *')
-    }
-
     environment {
         PROD_ENV     = "/opt/env/.env.amnesia"
         IMAGE_NAME   = "amnesia"
@@ -17,10 +13,58 @@ pipeline {
     }
 
     stages {
+        stage('Check Commit Message') {
+            steps {
+                script {
+                    def commitMsg = sh(
+                        script: "git log -1 --pretty=%B",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (commitMsg.contains("[ci skip]")) {
+                        echo "Commit message contains [ci skip], aborting pipeline 🚫"
+                        currentBuild.result = 'ABORTED'
+                        error("Pipeline aborted because of [ci skip]")
+                    }
+                }
+            }
+        }
         stage('Checkout Code') {
             steps {
                 git branch: 'main', credentialsId: 'ssh', url: 'git@github.com:Husanjonazamov/Amnesia-production.git'
-                stash includes: 'stack.j2.yaml', name: "stack.j2.yaml"
+            }
+        }
+        stage('Prepare') {
+            steps {
+                script {
+                    env.GIT_MESSAGE = sh(
+                        script: "git log -1 --pretty=%B ${env.GIT_COMMIT}",
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        stage("Update files") {
+            when {
+                expression { currentBuild.currentResult == "SUCCESS" }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        sed -i 's|image: ${DOCKER_USER}/${IMAGE_NAME}:.*|image: ${DOCKER_USER}/${IMAGE_NAME}:${BUILD_NUMBER}|' stack.yaml
+                        sed -i 's/return HttpResponse("OK.*"/return HttpResponse("OK: #${GIT_COMMIT}"/' config/urls.py
+                    """
+                        // git config --global user.email "admin@jscorp.uz"
+                        // git config --global user.name "Jenkins"
+                        // if ! git diff --quiet stack.yaml; then
+                        //     git add stack.yaml
+                        //     git commit -m "feat(swarm) Update image tag to ${BUILD_NUMBER} [ci skip]"
+                        //     git push origin main
+                        // else
+                        //     echo "No changes in stack.yaml"
+                        // fi
+                }
+
             }
         }
         stage('Build Image') {
@@ -58,7 +102,6 @@ pipeline {
         //         """
         //     }
         // }
-
         // stage('Run Migrations & Tests') {
         //     steps {
         //         sh """
@@ -91,33 +134,11 @@ pipeline {
                 }
             }
         }
-        stage("Generate stack.yaml") {
-            when {
-                expression { currentBuild.currentResult == "SUCCESS" }
-            }
-            agent {
-                docker {
-                    image 'python:3.13-slim'
-                    args '-u root'
-                }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    unstash "stack.j2.yaml"
-                    sh """
-                        pip install jinja2-cli
-                        jinja2 stack.j2.yaml -D username=${DOCKER_USER} -D name=${IMAGE_NAME} -D tag=${BUILD_NUMBER} > stack.yaml
-                    """
-                    stash includes: 'stack.yaml', name: 'stackfile'
-                }
-            }
-        }
         stage('Deploy stack') {
             when {
                 expression { currentBuild.currentResult == "SUCCESS" }
             }
             steps {
-                unstash 'stackfile'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                        docker stack deploy -c stack.yaml ${STACK_NAME}
@@ -131,8 +152,8 @@ pipeline {
     post {
         always {
             // sh """
-            //     docker stop ${CONTAINER_DB} || true
-            //     docker stop ${CONTAINER_REDIS} || true
+            //     docker stop ${CONTAINER_DB}  true
+            //     docker stop ${CONTAINER_REDIS}  true
             // """
             echo "Pipeline finished: ${currentBuild.currentResult}"
         }
@@ -145,7 +166,7 @@ pipeline {
                 sh '''
                 curl -s -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendMessage \
                 -d chat_id=${CHAT_ID} \
-                -d text="✅ SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}"
+                -d text="✅ SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}\nRepo: ${GIT_URL}\nBranch: ${GIT_BRANCH}\nCommit: ${GIT_COMMIT}\nMessage: ${GIT_MESSAGE}"
                 '''
             }
         }
@@ -158,7 +179,7 @@ pipeline {
                 sh '''
                 curl -s -X POST https://api.telegram.org/bot${BOT_TOKEN}/sendMessage \
                 -d chat_id=${CHAT_ID} \
-                -d text="🚨 FAILED: ${JOB_NAME} #${BUILD_NUMBER}"
+                -d text="🚨 FAILED: ${JOB_NAME} #${BUILD_NUMBER}\nRepo: ${GIT_URL}\nBranch: ${GIT_BRANCH}\nCommit: ${GIT_COMMIT}\nMessage: ${GIT_MESSAGE}"
                 '''
             }
         }

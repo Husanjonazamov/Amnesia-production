@@ -25,6 +25,8 @@ urlpatterns = [
     path("", include("core.apps.havasbook.urls")),
     path("", include("core.apps.payments.urls")),
     path("user/", include("core.apps.user.urls")),
+    path("api/", include("core.apps.shared.urls")),
+
 ]
 
 

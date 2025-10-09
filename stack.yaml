@@ -10,7 +10,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
-      - havasbooks
+      - amnesia
     deploy:
       replicas: 1
       placement:
@@ -41,7 +41,7 @@ services:
     image: redis:alpine 
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - havasbooks
+      - amnesia
     deploy:
       replicas: 1
       placement:
@@ -68,13 +68,13 @@ services:
         max-file: "3"
 
   web:
-    image: "{{ username }}/{{ name }}:{{ tag }}"
+    image: jscorptech/amnesia:latest 
     env_file:
       - .env
     environment:
       - PYTHONPYCACHEPREFIX=/var/cache/pycache
     networks:
-      - havasbooks
+      - amnesia
     volumes:
       - logs:/code/resources/logs/
       - media:/code/resources/media/
@@ -110,7 +110,7 @@ services:
     ports:
       - mode: ingress 
         target: 80
-        published: 8080 
+        published: 8019
         protocol: tcp
     volumes:
       - type: bind
@@ -120,7 +120,7 @@ services:
       - media:/usr/share/nginx/html/resources/media/:ro
       - static:/usr/share/nginx/html/resources/staticfiles/:ro
     networks:
-      - havasbooks
+      - amnesia
     deploy:
       replicas: 1
       restart_policy:
@@ -151,7 +151,7 @@ services:
         max-file: "3"
 
 networks:
-  havasbooks:
+  amnesia:
     driver: overlay 
 
 volumes:
