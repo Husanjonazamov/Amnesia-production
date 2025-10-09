@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', credentialsId: 'ssh', url: 'git@github.com:Husanjonazamov/Amnesia-production.gitt'
+                git branch: 'main', credentialsId: 'ssh', url: 'git@github.com:Husanjonazamov/Amnesia-production.git'
                 stash includes: 'stack.j2.yaml', name: "stack.j2.yaml"
             }
         }
