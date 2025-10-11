@@ -20,17 +20,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from core.apps.havasbook.filters.book import BookFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Q
-
 
 from core.apps.havasbook.filters.filter import (
     get_filtered_brands,
     get_filtered_data,
 )
-
-
-
-
 
 
 class BooksSearchView(ModelViewSet):
@@ -47,27 +41,20 @@ class BooksSearchView(ModelViewSet):
         q = self.request.query_params.get("search", None)
         if q:
             queryset = queryset.filter(
-                Q(name__icontains=q) | Q(description__icontains=q) 
+                Q(name__icontains=q) | Q(description__icontains=q)
             )
         return queryset
 
 
-
-
 @extend_schema(tags=["book"])
 class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = (
-        BookModel.objects
-        .select_related("gender", "brand", "category", "subcategory")  
-        .prefetch_related("childcategories", "color", "size", "images")  
-    )
     serializer_class = ListBookSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination
 
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = BookFilter
-    ordering_fields = ['price', 'sold_count', 'view_count', 'created_at', 'popular'] 
+    ordering_fields = ['price', 'sold_count', 'view_count', 'created_at', 'popular']
     ordering = ['-created_at']
 
     action_permission_classes = {}
@@ -76,6 +63,13 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         "retrieve": RetrieveBookSerializer,
         "create": CreateBookSerializer,
     }
+
+    def get_queryset(self):
+        return (
+            BookModel.objects
+            .select_related("gender", "brand", "category", "subcategory")
+            .prefetch_related("childcategories", "color", "size", "images")
+        )
 
     def get_permissions(self):
         if self.action == 'retrieve':
@@ -97,11 +91,9 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         paginator = CustomPagination()
         return get_filtered_data(request, paginator)
 
-    
-    
+
 @extend_schema(tags=["bookImage"])
 class BookimageView(BaseViewSetMixin, ReadOnlyModelViewSet):
-    queryset = BookimageModel.objects.select_related("book")
     serializer_class = ListBookimageSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination
@@ -113,6 +105,8 @@ class BookimageView(BaseViewSetMixin, ReadOnlyModelViewSet):
         "create": CreateBookimageSerializer,
     }
 
+    def get_queryset(self):
+        return BookimageModel.objects.select_related("book")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
