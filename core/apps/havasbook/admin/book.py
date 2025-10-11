@@ -11,6 +11,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import timedelta
 
+from django.contrib import admin
+from django.utils.html import format_html   
+
 
 class BookimageInline(TabularInline):
     model = BookimageModel
@@ -53,7 +56,7 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
     readonly_fields = ("price",)
     list_display = (
         "id",
-        "__str__",
+        "image_preview",
         'name',
         'price',
         "category",
@@ -75,6 +78,39 @@ class BookAdmin(ModelAdmin, TabbedTranslationAdmin):
         return None
 
     get_subcategory.short_description = "Подкатегория"
+    
+    
+    
+    def image_preview(self, obj):
+        """
+        Rasmni chiroyli ko‘rsatadi border-radius bilan.
+        """
+        if obj.image:
+            return format_html(
+                """
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #fafafa;
+                    border: 1px solid #eee;
+                    border-radius: 10px;
+                    padding: 6px;
+                    width: 90px;
+                    height: 90px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                ">
+                    <img src="{}" style="
+                        max-width: 100%;
+                        max-height: 100%;
+                        border-radius: 10px;
+                        object-fit: cover;
+                    " />
+                </div>
+                """,
+                obj.image.url
+            )
+        return format_html('<span style="color:#999;">Rasm yo‘q</span>')
 
 
     

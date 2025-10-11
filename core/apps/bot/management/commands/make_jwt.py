@@ -14,7 +14,7 @@ class Command(BaseCommand):
         if jwt_type == "user":
             payload = {
                 "exp": datetime.now() + timedelta(minutes=10),
-                "user_id": 5765144405,
+                "user_id": 1380106954,
             }
         else:
             payload = {
