@@ -29,20 +29,25 @@ from core.apps.havasbook.filters.filter import (
 
 
 
+
+
 class BooksSearchView(ModelViewSet):
     serializer_class = ListBookSerializer
     permission_classes = [AllowAny]
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        queryset = BookModel.objects.all()
+        queryset = (
+            BookModel.objects
+            .select_related("gender", "brand", "category", "subcategory")
+            .prefetch_related("childcategories", "color", "size", "images")
+        )
         q = self.request.query_params.get("search", None)
         if q:
             queryset = queryset.filter(
                 Q(name__icontains=q) | Q(description__icontains=q)
             )
         return queryset
-
 
 
 
@@ -65,7 +70,11 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
     }
 
     def get_queryset(self):
-        return BookModel.objects.all()
+        return (
+            BookModel.objects
+            .select_related("gender", "brand", "category", "subcategory")
+            .prefetch_related("childcategories", "color", "size", "images")
+        )
 
     def get_permissions(self):
         if self.action == 'retrieve':
@@ -88,8 +97,6 @@ class BookView(BaseViewSetMixin, ReadOnlyModelViewSet):
         return get_filtered_data(request, paginator)
 
 
-
-
 @extend_schema(tags=["bookImage"])
 class BookimageView(BaseViewSetMixin, ReadOnlyModelViewSet):
     serializer_class = ListBookimageSerializer
@@ -104,7 +111,7 @@ class BookimageView(BaseViewSetMixin, ReadOnlyModelViewSet):
     }
 
     def get_queryset(self):
-        return BookimageModel.objects.all()
+        return BookimageModel.objects.select_related("book")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
