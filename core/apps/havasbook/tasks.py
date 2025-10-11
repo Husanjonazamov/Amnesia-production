@@ -34,9 +34,10 @@ def send_cart_reminder(user_id):
 
         response = requests.get(TELEGRAM_API_URL, params={"chat_id": tg_id, "text": message_text})
         if response.status_code == 200:
-            print(f"✅ Telegram eslatma yuborildi: {user.username}")
+                print(f"✅ Telegram eslatma yuborildi: {user.username} (tg_id: {tg_id})")
         else:
-            print(f"❌ Telegram xato ({response.status_code}): {user.username}")
+            print(f"❌ Telegram xato ({response.status_code}): {user.username} (tg_id: {tg_id}) - {response.status_code}")
+
 
     except Exception as e:
         print(f"Xatolik: {e}")
@@ -45,6 +46,11 @@ def send_cart_reminder(user_id):
 @shared_task(name="core.apps.havasbook.tasks.send_cart_reminders_task")
 def send_cart_reminders_task():
     carts = CartModel.objects.prefetch_related('cart_items__book').all()
+    sent_count = 0 
+
     for cart in carts:
         if cart.cart_items.exists():
             send_cart_reminder.delay(cart.user.id)
+            sent_count += 1
+
+    print(f"📊 Eslatmalar yuborildi: {sent_count} ta userga")
