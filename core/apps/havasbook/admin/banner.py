@@ -16,6 +16,8 @@ class BannerAdmin(ModelAdmin, TabbedTranslationAdmin):
     )
     search_fields = ("link",)
     readonly_fields = ("created_at",)
+    
+    
 
     @admin.display(description=_("Rasm"))
     def image_preview(self, obj):

@@ -14,7 +14,7 @@ class CartAdmin(ModelAdmin):
     )
     
     def user_name(self, obj):
-        return obj.user.first_name
+        return obj.user.phone
 
 
 @admin.register(CartitemModel)
