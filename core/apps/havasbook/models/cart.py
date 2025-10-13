@@ -17,7 +17,7 @@ class CartModel(AbstractBaseModel):
     )
     
     def __str__(self):
-        return self.user.first_name
+        return self.user.username
         
     @classmethod
     def _create_fake(self):
