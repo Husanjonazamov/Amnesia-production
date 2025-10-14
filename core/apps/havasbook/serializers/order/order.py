@@ -90,14 +90,11 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
         user = self.context['request'].user
 
-        # Location yaratish
         location = LocationModel.objects.create(**location_data)
 
-        # Yetkazib berish
         delivery_method = validated_data['delivery_method']
         delivery_price = delivery_method.price if delivery_method.price is not None else Decimal('0.00')
 
-        # Order yaratish
         order = OrderModel.objects.create(
             user=user,
             location=location,
@@ -106,13 +103,11 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             comment=validated_data.get('comment'),
             order_type=validated_data.get('order_type'),
 
-            # ✅ Reciever ma'lumotlarini saqlash
             reciever_name=reciever_data.get("name"),
             reciever_phone=reciever_data.get("phone") or reciever_data.get("userName"),
             reciever_userName=reciever_data.get("userName"),
         )
 
-        # Order items yaratish va umumiy narx hisoblash
         total_price = Decimal('0.00')
         for item in order_items_data:
             book_id = item['book'] if isinstance(item['book'], int) else item['book'].id
@@ -131,20 +126,23 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
             book.sold_count = (book.sold_count or 0) + quantity
             book.save()
-        # Yetkazib berish narxini qo‘shish
         total_price += delivery_price
         order.total_price = total_price
         order.save()
 
-        # Cartni tozalash
         cart = CartModel.objects.filter(user=user).first()
         if cart:
             CartitemModel.objects.filter(cart=cart).delete()
 
-        # Telegramga yuborish
         send_order_to_telegram(order=order)
 
         return order
+    
+    
+    def to_representation(self, instance):
+        from core.apps.havasbook.serializers.order import ListOrderSerializer
+        return ListOrderSerializer(instance, context=self.context).data
+
 
 
 class OrderStatusSerializers(serializers.ModelSerializer):
